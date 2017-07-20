@@ -60,7 +60,7 @@ let QuestionsArea = React.createClass({
             this.setState(state);
             return(
                     <div>
-                        <ul className="nav nav-tabs">
+                        <ul className="nav nav-tabs" style={{marginTop:'10%'}}>
                             <li><a href='#/' onClick={this.showRecentQuestions}>Recent Questions</a></li>
                             <li className='active'><a href={uri} onClick={this.showSearchResults}>Search Results</a></li>
                         </ul>
@@ -76,7 +76,7 @@ let QuestionsArea = React.createClass({
             if(prev == 'BEGIN_SEARCH_QUESTION'){
                 return(
                     <div>
-                        <ul className="nav nav-tabs">
+                        <ul className="nav nav-tabs" style={{marginTop:'10%'}}>
                             <li><a href='#/' onClick={this.showRecentQuestions}>Recent Questions</a></li>
                             <li className='active'><a href={uri} onClick={this.showSearchResults}>Search Results</a></li>
                         </ul>
@@ -92,7 +92,7 @@ let QuestionsArea = React.createClass({
             uri = this.state.uri;
             return (
                 <div>
-                    <ul className="nav nav-tabs">
+                    <ul className="nav nav-tabs" style={{marginTop:'10%'}}>
                         <li className='active'><a href='#/' onClick={this.showRecentQuestions}>Recent Questions</a></li>
                         {this.showSearchResults()}
                     </ul>
@@ -106,7 +106,7 @@ let QuestionsArea = React.createClass({
             this.setState(state);
             uri = this.state.uri;
             return (
-                <div>
+                <div style={{marginTop:'10%'}}>
                     <ul className="nav nav-tabs">
                         <li className='active'><a href='#/' onClick={this.showRecentQuestions}>Recent Questions</a></li>
                         {this.showSearchResults()}
@@ -119,7 +119,7 @@ let QuestionsArea = React.createClass({
 
     render(){
         return(
-            <div className='container'>
+            <div className='container' style={{paddingLeft:'0px',fontFamily:'Open Sans'}}>
                 {this.showUI()}
             </div>
         );

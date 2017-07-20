@@ -130,7 +130,7 @@ let Login = React.createClass({
         }
       }
         return (
-          <div style={{marginTop:'5%',marginLeft:'20%',marginRight:'30%'}}>
+          <div style={{marginTop:'10%',marginLeft:'20%',marginRight:'30%',fontFamily:'Open Sans'}}>
             {this.displayMainErrorMessage()}
             <div className="panel panel-info">
               <div className="panel-heading">

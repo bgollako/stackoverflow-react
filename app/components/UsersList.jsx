@@ -34,8 +34,12 @@ let UsersList = React.createClass({
     },
 
     getClassForItem(user_id){
+        console.log(user_id);
         if(this.state.currentSelection == user_id)
             return 'list-group-item active';
+        else if(this.props.notifiedUserIds.length != 0 && 
+                this.props.notifiedUserIds.some(id=>id == user_id))
+            return 'list-group-item list-group-item-success'
         else
             return 'list-group-item';
     },
@@ -100,7 +104,7 @@ let UsersList = React.createClass({
 
     render(){
         return (
-            <div className="panel panel-primary" style={{marginBottom:'2px'}}>
+            <div className="panel panel-success" style={{marginBottom:'2px'}}>
                 <div className="panel-heading"><strong>Users</strong>
                     <span style={{float:'right',cursor:'pointer'}} className="glyphicon glyphicon-refresh" 
                     onClick={this.handleReload}></span>

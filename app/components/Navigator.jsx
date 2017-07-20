@@ -100,10 +100,11 @@ let Navigator = React.createClass({
 
     render: function(){
         return (
-                <Navbar  collapseOnSelect style={{borderRadius:'0%'}}>
+                <Navbar fixedTop collapseOnSelect style={{boxShadow:'1px 1px 1px #888888',borderRadius:'0%',backgroundColor:'white',paddingTop:'5px',paddingBottom:'5px',fontFamily:'Open Sans'}}>
                     <Navbar.Header>
-                    <Navbar.Brand>
-                        <a href="/">Packet Overflow</a>
+                    <Navbar.Brand style={{padding:'0px'}}>
+                          <a style={{fontFamily:'Lato'}}href="/"><strong>PACKET</strong> OVERFLOW</a>  
+                         {/* <a href="/"><img src='images/topBanner.png' /></a>  */}
                     </Navbar.Brand>
                     <Navbar.Toggle />
                     </Navbar.Header>

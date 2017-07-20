@@ -254,10 +254,16 @@ let QuestionDetails = React.createClass({
         }
     },
 
+    getFormattedText(text){
+        let temp = text.replace(/\n/g,'<br/>');
+        let temp2 = temp.replace(' ','&nbsp');
+        return temp2;
+    },
+
     showQuestion(question){
         if(this.state.showQuestionEditForm){
             return(
-                <div className='container' style={{backgroundColor:'white',height:'100%'}}>
+                <div className='container' style={{paddingLeft:'0px'}}>
                     {/* {this.displayMainMessage()} */}
                     <div className={this.getInputStylesForEditQuestion('editTitle')} style={{marginTop:'20px'}}>
                         <input type="text" className="form-control" id="usr" ref="editTitle" placeholder='Title' defaultValue={this.getCurrentQuestion().title}/>
@@ -272,12 +278,13 @@ let QuestionDetails = React.createClass({
         }else{
             return(
                 <div>
-                    <div className="media" style={{marginTop:'20px'}}>
+                    <div className="media" style={{marginTop:'10px',backgroundColor:'white',padding:'10px',borderStyle:'solid',borderWidth:'0.5px',borderColor:'#eee',borderRadius:'5px'}}>
                         <div className="media-body">
                             <div className="media-heading" style={{fontSize:'20px'}}><strong>{question.title}</strong>
                                 {this.displayAnswerButton()}
                             </div><br/>
-                            <p>{question.description}</p>
+                            {/* <p>{this.getFormattedText(question.description)}</p> */}
+                            <p dangerouslySetInnerHTML={{__html:this.getFormattedText(question.description)}}></p>
                             <small><i>Posted by <a style={{cursor:'pointer'}}>{question.user.name}</a>, {question.asked}</i></small>
                         </div>
                     </div>
@@ -296,14 +303,14 @@ let QuestionDetails = React.createClass({
         if(this.props.status == 'COMPLETE_GET_QUESTION_DETAILS'){
             if(this.props.question.length > 0){
                 return(
-                    <div className='container' style={{backgroundColor:'white',height:'100%'}}>
+                    <div className='container' style={{paddingLeft:'0px'}}>
                         {this.showQuestion(this.props.question[0])}
                         <Answers value={this.props.question[0].answers}/>
                     </div>
             );
             }else{
                 return(
-                    <div className ='container'>
+                    <div className ='container' style={{paddingLeft:'0px'}}>
                         <div className="alert alert-danger" style={{marginTop:'20px'}}>
                             <strong>Question details not found</strong>
                         </div>
@@ -313,7 +320,7 @@ let QuestionDetails = React.createClass({
             
         }else if(this.props.status == 'ERROR_ON_GET_QUESTION_DETAILS'){
             return(
-                <div className ='container'>
+                <div className ='container' style={{paddingLeft:'0px'}}>
                     <div className="alert alert-danger" style={{marginTop:'20px'}}>
                         <strong>Internal Error, Please check error logs</strong>
                     </div>
@@ -325,7 +332,7 @@ let QuestionDetails = React.createClass({
             );
         }else if(this.props.status == ''){
                 return(
-                    <div className='container' style={{backgroundColor:'white',height:'100%'}}>
+                    <div className='container' style={{paddingLeft:'0px'}}>
                         {this.showQuestion(this.state.question[0])}
                         <Answers value={this.state.question[0].answers}/>
                     </div>

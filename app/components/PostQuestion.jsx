@@ -83,9 +83,9 @@ let PostQuestion = React.createClass({
 
     render: function(){
         return (
-          <div className='container'>
+          <div className='container' style={{marginTop:'10%',fontFamily:'Open Sans'}}>
             <ul className="nav nav-tabs">
-                    <li className="active"><a href="#/home">Post Question</a></li>
+                    <li className="active"><a href="#/">Post Question</a></li>
                     {/* <li><a href="#/home">Your Questions</a></li> */}
             </ul>
           <div className='container' style={{backgroundColor:'white',height:'100%'}}>

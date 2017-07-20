@@ -10,6 +10,7 @@ let QuestionDetailsHolder = require('QuestionDetailsHolder');
 let ChatRoomHolder = require('ChatRoomHolder');
 let actions = require('actions');
 let api = require('api');
+let Home = require('Home');
 let QuestionsAreaHolder = require('QuestionsAreaHolder');
 
 
@@ -27,6 +28,7 @@ let Root = React.createClass({
                     {/* <Route path='/' components={()=><Main isLoggedIn={isLoggedIn()} />}> */}
                     <Route path='/' component={Main}>
                         <IndexRoute component={QuestionsAreaHolder} /> 
+                        <Route path='home' component={Home} />
                         <Route path='login' component={()=><Login onLoginSubmit={this.handleLoginSubmit}/>} />
                         <Route path='signup' component={()=><Signup/>} />
                         <Route path='postquestion' component={()=><PostQuestion/>} />

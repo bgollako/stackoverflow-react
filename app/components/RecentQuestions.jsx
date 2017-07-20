@@ -10,7 +10,7 @@ let RecentQuestions = React.createClass({
         if(this.props.questions){
             for(let i=0;i<this.props.questions.length;i++){
                 questionsArray.push(
-                    <BasicQuestion id={this.props.questions[i]._id} key={this.props.questions[i]._id} title={this.props.questions[i].title} description={this.props.questions[i].description}
+                    <BasicQuestion asked={this.props.questions[i].asked} id={this.props.questions[i]._id} key={this.props.questions[i]._id} title={this.props.questions[i].title} description={this.props.questions[i].description}
                     user={this.props.questions[i].user.name} answerCount={4} commentCount={this.props.questions[i].comments?this.props.questions[i].comments.length:0}/>
                 );
             }
@@ -38,7 +38,8 @@ let RecentQuestions = React.createClass({
 
     render(){
         return(
-            <div className='container' style={{backgroundColor:'white',height:'100%'}}>
+            // style={{backgroundColor:'white',height:'100%'}}
+            <div className='container' style={{paddingLeft:'0px'}}>
                  {this.displayUi()} 
             </div>
         );

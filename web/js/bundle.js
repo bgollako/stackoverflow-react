@@ -49,7 +49,7 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(37);
 	var Root = __webpack_require__(193);
-	var store = __webpack_require__(635).configure();
+	var store = __webpack_require__(637).configure();
 
 	var _require = __webpack_require__(195),
 	    Provider = _require.Provider;
@@ -23153,7 +23153,8 @@
 	var ChatRoomHolder = __webpack_require__(623);
 	var actions = __webpack_require__(615);
 	var api = __webpack_require__(524);
-	var QuestionsAreaHolder = __webpack_require__(631);
+	var Home = __webpack_require__(632);
+	var QuestionsAreaHolder = __webpack_require__(633);
 
 	var Root = React.createClass({
 	    displayName: 'Root',
@@ -23176,6 +23177,7 @@
 	                    Route,
 	                    { path: '/', component: Main },
 	                    React.createElement(IndexRoute, { component: QuestionsAreaHolder }),
+	                    React.createElement(Route, { path: 'home', component: Home }),
 	                    React.createElement(Route, { path: 'login', component: function component() {
 	                            return React.createElement(Login, { onLoginSubmit: _this.handleLoginSubmit });
 	                        } }),
@@ -23378,17 +23380,22 @@
 	    render: function render() {
 	        return React.createElement(
 	            Navbar,
-	            { collapseOnSelect: true, style: { borderRadius: '0%' } },
+	            { fixedTop: true, collapseOnSelect: true, style: { boxShadow: '1px 1px 1px #888888', borderRadius: '0%', backgroundColor: 'white', paddingTop: '5px', paddingBottom: '5px', fontFamily: 'Open Sans' } },
 	            React.createElement(
 	                Navbar.Header,
 	                null,
 	                React.createElement(
 	                    Navbar.Brand,
-	                    null,
+	                    { style: { padding: '0px' } },
 	                    React.createElement(
 	                        'a',
-	                        { href: '/' },
-	                        'Packet Overflow'
+	                        { style: { fontFamily: 'Lato' }, href: '/' },
+	                        React.createElement(
+	                            'strong',
+	                            null,
+	                            'PACKET'
+	                        ),
+	                        ' OVERFLOW'
 	                    )
 	                ),
 	                React.createElement(Navbar.Toggle, null)
@@ -56405,7 +56412,7 @@
 	    }
 	    return React.createElement(
 	      'div',
-	      { style: { marginTop: '5%', marginLeft: '20%', marginRight: '30%' } },
+	      { style: { marginTop: '10%', marginLeft: '20%', marginRight: '30%', fontFamily: 'Open Sans' } },
 	      this.displayMainErrorMessage(),
 	      React.createElement(
 	        'div',
@@ -56630,7 +56637,7 @@
 	    }
 	    return React.createElement(
 	      'div',
-	      { className: true, style: { marginTop: '5%', marginLeft: '20%', marginRight: '30%' } },
+	      { className: true, style: { marginTop: '10%', marginLeft: '20%', marginRight: '30%', fontFamily: 'Open Sans' } },
 	      this.displayMainErrorMessage(),
 	      React.createElement(
 	        'div',
@@ -56844,7 +56851,7 @@
 	  render: function render() {
 	    return React.createElement(
 	      'div',
-	      { className: 'container' },
+	      { className: 'container', style: { marginTop: '10%', fontFamily: 'Open Sans' } },
 	      React.createElement(
 	        'ul',
 	        { className: 'nav nav-tabs' },
@@ -56853,7 +56860,7 @@
 	          { className: 'active' },
 	          React.createElement(
 	            'a',
-	            { href: '#/home' },
+	            { href: '#/' },
 	            'Post Question'
 	          )
 	        )
@@ -56923,7 +56930,7 @@
 	        this.props.dispatch(actions.getQuestionDetailsApi(this.props.params.id));
 	        return React.createElement(
 	            'div',
-	            { className: 'container' },
+	            { className: 'container', style: { marginTop: '10%', fontFamily: 'Open Sans' } },
 	            React.createElement(
 	                'ul',
 	                { className: 'nav nav-tabs' },
@@ -57216,11 +57223,16 @@
 	            }
 	        }
 	    },
+	    getFormattedText: function getFormattedText(text) {
+	        var temp = text.replace(/\n/g, '<br/>');
+	        var temp2 = temp.replace(' ', '&nbsp');
+	        return temp2;
+	    },
 	    showQuestion: function showQuestion(question) {
 	        if (this.state.showQuestionEditForm) {
 	            return React.createElement(
 	                'div',
-	                { className: 'container', style: { backgroundColor: 'white', height: '100%' } },
+	                { className: 'container', style: { paddingLeft: '0px' } },
 	                React.createElement(
 	                    'div',
 	                    { className: this.getInputStylesForEditQuestion('editTitle'), style: { marginTop: '20px' } },
@@ -57248,7 +57260,7 @@
 	                null,
 	                React.createElement(
 	                    'div',
-	                    { className: 'media', style: { marginTop: '20px' } },
+	                    { className: 'media', style: { marginTop: '10px', backgroundColor: 'white', padding: '10px', borderStyle: 'solid', borderWidth: '0.5px', borderColor: '#eee', borderRadius: '5px' } },
 	                    React.createElement(
 	                        'div',
 	                        { className: 'media-body' },
@@ -57263,11 +57275,7 @@
 	                            this.displayAnswerButton()
 	                        ),
 	                        React.createElement('br', null),
-	                        React.createElement(
-	                            'p',
-	                            null,
-	                            question.description
-	                        ),
+	                        React.createElement('p', { dangerouslySetInnerHTML: { __html: this.getFormattedText(question.description) } }),
 	                        React.createElement(
 	                            'small',
 	                            null,
@@ -57296,14 +57304,14 @@
 	            if (this.props.question.length > 0) {
 	                return React.createElement(
 	                    'div',
-	                    { className: 'container', style: { backgroundColor: 'white', height: '100%' } },
+	                    { className: 'container', style: { paddingLeft: '0px' } },
 	                    this.showQuestion(this.props.question[0]),
 	                    React.createElement(Answers, { value: this.props.question[0].answers })
 	                );
 	            } else {
 	                return React.createElement(
 	                    'div',
-	                    { className: 'container' },
+	                    { className: 'container', style: { paddingLeft: '0px' } },
 	                    React.createElement(
 	                        'div',
 	                        { className: 'alert alert-danger', style: { marginTop: '20px' } },
@@ -57318,7 +57326,7 @@
 	        } else if (this.props.status == 'ERROR_ON_GET_QUESTION_DETAILS') {
 	            return React.createElement(
 	                'div',
-	                { className: 'container' },
+	                { className: 'container', style: { paddingLeft: '0px' } },
 	                React.createElement(
 	                    'div',
 	                    { className: 'alert alert-danger', style: { marginTop: '20px' } },
@@ -57334,7 +57342,7 @@
 	        } else if (this.props.status == '') {
 	            return React.createElement(
 	                'div',
-	                { className: 'container', style: { backgroundColor: 'white', height: '100%' } },
+	                { className: 'container', style: { paddingLeft: '0px' } },
 	                this.showQuestion(this.state.question[0]),
 	                React.createElement(Answers, { value: this.state.question[0].answers })
 	            );
@@ -57379,6 +57387,11 @@
 
 	var Answers = React.createClass({
 	    displayName: 'Answers',
+	    getFormattedText: function getFormattedText(text) {
+	        var temp = text.replace(/\n/g, '<br/>');
+	        var temp2 = temp.replace(' ', '&nbsp');
+	        return temp2;
+	    },
 	    showAnswer: function showAnswer(answers) {
 	        var array = [];
 	        if (answers) {
@@ -57390,15 +57403,11 @@
 	                        { key: answer._id },
 	                        React.createElement(
 	                            'div',
-	                            { className: 'media', style: { marginTop: '20px' } },
+	                            { className: 'media', style: { marginLeft: '10%', marginTop: '10px', backgroundColor: 'white', padding: '10px', borderStyle: 'solid', borderWidth: '0.5px', borderColor: '#eee', borderRadius: '5px' } },
 	                            React.createElement(
 	                                'div',
 	                                { className: 'media-body' },
-	                                React.createElement(
-	                                    'p',
-	                                    null,
-	                                    answer.description
-	                                ),
+	                                React.createElement('p', { dangerouslySetInnerHTML: { __html: this.getFormattedText(answer.description) } }),
 	                                React.createElement(
 	                                    'small',
 	                                    null,
@@ -57416,8 +57425,7 @@
 	                                    )
 	                                )
 	                            )
-	                        ),
-	                        React.createElement('hr', null)
+	                        )
 	                    ));
 	                }
 	            }
@@ -57428,28 +57436,24 @@
 	        if (this.props.status == 'BEGIN_POST_ANSWER') {
 	            return React.createElement('img', { src: 'images/loading3.gif', style: { marginLeft: '37%', marginTop: '15%', marginBottom: '30%' } });
 	        } else if (this.props.status == 'COMPLETE_POST_ANSWER') {
-	            return React.createElement(
-	                'div',
-	                { className: 'well', style: { marginLeft: '15%', backgroundColor: '#f2f5f9' } },
+	            return (
+	                // <div className="well" style={{marginLeft:'15%',backgroundColor:'#f2f5f9'}}><h4 className="media-heading">Answers</h4>
+	                // <hr/>
 	                React.createElement(
-	                    'h4',
-	                    { className: 'media-heading' },
-	                    'Answers'
-	                ),
-	                React.createElement('hr', null),
-	                this.showAnswer(this.props.question[0].answers)
+	                    'div',
+	                    null,
+	                    this.showAnswer(this.props.question[0].answers)
+	                )
 	            );
 	        } else if (this.props.status == 'ERROR_POST_ANSWER') {} else if (this.props.value && this.props.value.length > 0) {
-	            return React.createElement(
-	                'div',
-	                { className: 'well', style: { marginLeft: '15%', backgroundColor: '#f2f5f9' } },
+	            return (
+	                // <div className="well" style={{marginLeft:'15%',backgroundColor:'#f2f5f9'}}><h4 className="media-heading">Answers</h4>
+	                // <hr/>
 	                React.createElement(
-	                    'h4',
-	                    { className: 'media-heading' },
-	                    'Answers'
-	                ),
-	                React.createElement('hr', null),
-	                this.showAnswer(this.props.value)
+	                    'div',
+	                    null,
+	                    this.showAnswer(this.props.value)
+	                )
 	            );
 	        }
 	    },
@@ -57557,7 +57561,7 @@
 	            { style: { marginTop: '10px' } },
 	            React.createElement(
 	                'div',
-	                { className: 'media' },
+	                { className: 'media', style: { backgroundColor: 'white', padding: '10px', borderStyle: 'solid', borderWidth: '0.5px', borderColor: '#eee', borderRadius: '5px' } },
 	                React.createElement(
 	                    'div',
 	                    { className: 'media-body' },
@@ -57576,13 +57580,13 @@
 	                        React.createElement(
 	                            'i',
 	                            null,
-	                            'Posted by ',
 	                            React.createElement(
 	                                'a',
 	                                { style: { cursor: 'pointer' } },
 	                                this.props.user
 	                            ),
-	                            ' on February 19, 2016,'
+	                            ' ',
+	                            this.props.asked
 	                        )
 	                    )
 	                ),
@@ -57593,8 +57597,7 @@
 	                    ' ',
 	                    React.createElement(Glyphicon, { glyph: 'comment' })
 	                )
-	            ),
-	            React.createElement('hr', null)
+	            )
 	        );
 	    }
 	});
@@ -57616,7 +57619,7 @@
 	var UsersList = __webpack_require__(626);
 	var MessageAreas = __webpack_require__(628);
 	var api = __webpack_require__(524);
-	var ChatSend = __webpack_require__(638);
+	var ChatSend = __webpack_require__(631);
 
 	var ChatRoom = React.createClass({
 	    displayName: 'ChatRoom',
@@ -57624,15 +57627,16 @@
 	        return {
 	            currentUserId: '',
 	            curentUsername: '',
-	            messages: []
-
+	            messages: [],
+	            notifiedUserIds: []
 	        };
 	    },
 	    getDummyState: function getDummyState() {
 	        return {
 	            currentUserId: '',
 	            curentUsername: '',
-	            messages: []
+	            messages: [],
+	            notifiedUserIds: []
 	        };
 	    },
 	    createToMessage: function createToMessage(userId, message) {
@@ -57656,6 +57660,10 @@
 	        var newArray = this.state.messages.map(function (t) {
 	            return t;
 	        });
+	        var newNotifications = this.state.notifiedUserIds.filter(function (id) {
+	            return id != userId;
+	        });
+	        state.notifiedUserIds = newNotifications;
 	        state.messages = newArray;
 	        this.setState(state);
 	    },
@@ -57676,25 +57684,27 @@
 	        webSocket.send(message);
 	    },
 	    onMessageRecieved: function onMessageRecieved(e) {
-	        console.log(e.data);
 	        var userDetails = api.getUserFromLocalStorage();
 	        var userId = userDetails && userDetails.user ? userDetails.user : '';
 	        if (e.data && e.data.length > 0) {
 	            var message = JSON.parse(e.data);
 	            if (message) {
+	                var state = this.getDummyState();
 	                var newArray = this.state.messages.map(function (t) {
 	                    return t;
 	                });
 	                if (message.sender_id == userId) {
 	                    var toMessage = this.createToMessage(message.reciever_id, message.message);
-	                    console.log("TO " + JSON.stringify(toMessage));
 	                    newArray.push(toMessage);
 	                } else {
 	                    var fromMessage = this.createFromMessage(message.sender_id, message.message);
-	                    console.log("FROM " + JSON.stringify(fromMessage));
+	                    var newNotifications = this.state.notifiedUserIds.map(function (t) {
+	                        return t;
+	                    });
+	                    newNotifications.push(message.sender_id);
+	                    state.notifiedUserIds = newNotifications;
 	                    newArray.push(fromMessage);
 	                }
-	                var state = this.getDummyState();
 	                state.currentUserId = this.state.currentUserId;
 	                state.curentUsername = this.state.curentUsername;
 	                state.messages = newArray;
@@ -57707,14 +57717,14 @@
 	        webSocket.onmessage = this.onMessageRecieved;
 	        return React.createElement(
 	            'div',
-	            { className: 'container' },
+	            { className: 'container', style: { marginTop: '10%', fontFamily: 'Open Sans' } },
 	            React.createElement(
 	                'div',
 	                { className: 'row' },
 	                React.createElement(
 	                    'div',
 	                    { className: 'col-sm-3', style: { paddingRight: '2px' } },
-	                    React.createElement(UsersList, { onUserSelect: this.handleUserSelect })
+	                    React.createElement(UsersList, { notifiedUserIds: this.state.notifiedUserIds, onUserSelect: this.handleUserSelect })
 	                ),
 	                React.createElement(
 	                    'div',
@@ -57779,7 +57789,10 @@
 	        return true;
 	    },
 	    getClassForItem: function getClassForItem(user_id) {
-	        if (this.state.currentSelection == user_id) return 'list-group-item active';else return 'list-group-item';
+	        console.log(user_id);
+	        if (this.state.currentSelection == user_id) return 'list-group-item active';else if (this.props.notifiedUserIds.length != 0 && this.props.notifiedUserIds.some(function (id) {
+	            return id == user_id;
+	        })) return 'list-group-item list-group-item-success';else return 'list-group-item';
 	    },
 	    renderUser: function renderUser(user) {
 	        return React.createElement(UsersListItem, { status: user.status, class_name: this.getClassForItem(user._id), key: user._id, user_id: user._id, user: user.name, onItemClick: this.handleUserItemClick });
@@ -57833,7 +57846,7 @@
 	    render: function render() {
 	        return React.createElement(
 	            'div',
-	            { className: 'panel panel-primary', style: { marginBottom: '2px' } },
+	            { className: 'panel panel-success', style: { marginBottom: '2px' } },
 	            React.createElement(
 	                'div',
 	                { className: 'panel-heading' },
@@ -57931,22 +57944,25 @@
 	        }
 	        return messagesArray;
 	    },
+	    getUsername: function getUsername() {
+	        if (this.props.username && this.props.username != '') return this.props.username;else return 'Chat Room';
+	    },
 	    render: function render() {
 	        return React.createElement(
 	            'div',
-	            { className: 'panel panel-primary', style: { marginBottom: '2px' } },
+	            { className: 'panel panel-success', style: { marginBottom: '2px' } },
 	            React.createElement(
 	                'div',
 	                { className: 'panel-heading' },
 	                React.createElement(
 	                    'strong',
 	                    null,
-	                    this.props.username
+	                    this.getUsername()
 	                )
 	            ),
 	            React.createElement(
 	                'div',
-	                { className: 'panel-body', style: { height: '600px', overflow: 'scroll' } },
+	                { className: 'panel-body', style: { height: '500px', overflow: 'scroll' } },
 	                this.displayMessages()
 	            )
 	        );
@@ -58034,6 +58050,97 @@
 
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(37);
+	var BasicQuestion = __webpack_require__(624);
+
+	var _require = __webpack_require__(195),
+	    connect = _require.connect;
+
+	var ChatSend = React.createClass({
+	    displayName: 'ChatSend',
+	    getInitialState: function getInitialState() {
+	        return {
+	            value: ''
+	        };
+	    },
+	    handleClick: function handleClick(e) {
+	        e.preventDefault();
+	        var value = this.refs.message.value;
+	        this.setState({ value: '' });
+	        this.props.handleSendMessage(value);
+	    },
+	    handleChange: function handleChange(e) {
+	        e.preventDefault();
+	        this.setState({ value: this.refs.message.value });
+	    },
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'div',
+	                { className: 'row' },
+	                React.createElement(
+	                    'div',
+	                    { className: 'col-sm-11', style: { paddingRight: '0px' } },
+	                    React.createElement('textarea', { value: this.state.value, style: { resize: 'None' }, ref: 'message', placeholder: 'Message', className: 'form-control', rows: '2', id: 'comment', onChange: this.handleChange })
+	                ),
+	                React.createElement(
+	                    'div',
+	                    { className: 'col-sm-1' },
+	                    React.createElement(
+	                        'button',
+	                        { style: { float: 'right' }, type: 'button', className: 'btn btn-info', onClick: this.handleClick },
+	                        'Send'
+	                    )
+	                )
+	            )
+	        )
+	        //     <span className="form-group" style={{marginBottom:'2px'}}>
+	        //         <textarea style={{width:'200px'}} value={this.state.value} style={{resize:'None'}} ref='message' placeholder='Message' className="form-control" rows="2" id="comment" onChange={this.handleChange}></textarea>
+	        //     </span>
+	        //     <button style={{float:'right'}} type="button" className="btn btn-info" onClick={this.handleClick}>Send</button>
+	        // </div>
+	        ;
+	    }
+	});
+
+	module.exports = ChatSend;
+
+/***/ }),
+/* 632 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(37);
+
+	var _require = __webpack_require__(195),
+	    connect = _require.connect;
+
+	var _require2 = __webpack_require__(615),
+	    userLoggedIn = _require2.userLoggedIn;
+
+	var api = __webpack_require__(524);
+	var actions = __webpack_require__(615);
+
+	var Home = React.createClass({
+	    displayName: 'Home',
+	    render: function render() {
+	        return React.createElement('img', { src: 'images/post_login.jpg' });
+	    }
+	});
+
+	module.exports = Home;
+
+/***/ }),
+/* 633 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(37);
 
 	var _require = __webpack_require__(195),
 	    connect = _require.connect;
@@ -58048,9 +58155,9 @@
 	    endQuestionsRefresh = _require3.endQuestionsRefresh;
 
 	var BasicQuestion = __webpack_require__(624);
-	var RecentQuestions = __webpack_require__(632);
+	var RecentQuestions = __webpack_require__(634);
 	var actions = __webpack_require__(615);
-	var QuestionsArea = __webpack_require__(633);
+	var QuestionsArea = __webpack_require__(635);
 
 	var QuestionsAreaHolder = React.createClass({
 	    displayName: 'QuestionsAreaHolder',
@@ -58087,7 +58194,7 @@
 	module.exports = connect()(QuestionsAreaHolder);
 
 /***/ }),
-/* 632 */
+/* 634 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58107,7 +58214,7 @@
 	        var questionsArray = [];
 	        if (this.props.questions) {
 	            for (var i = 0; i < this.props.questions.length; i++) {
-	                questionsArray.push(React.createElement(BasicQuestion, { id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
+	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
 	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
 	            }
 	        }
@@ -58134,10 +58241,13 @@
 	        }
 	    },
 	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            { className: 'container', style: { backgroundColor: 'white', height: '100%' } },
-	            this.displayUi()
+	        return (
+	            // style={{backgroundColor:'white',height:'100%'}}
+	            React.createElement(
+	                'div',
+	                { className: 'container', style: { paddingLeft: '0px' } },
+	                this.displayUi()
+	            )
 	        );
 	    }
 	});
@@ -58150,7 +58260,7 @@
 	})(RecentQuestions);
 
 /***/ }),
-/* 633 */
+/* 635 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58175,8 +58285,8 @@
 	    endQuestionsRefresh = _require3.endQuestionsRefresh;
 
 	var BasicQuestion = __webpack_require__(624);
-	var RecentQuestions = __webpack_require__(632);
-	var SearchQuestions = __webpack_require__(634);
+	var RecentQuestions = __webpack_require__(634);
+	var SearchQuestions = __webpack_require__(636);
 	var actions = __webpack_require__(615);
 
 	var QuestionsArea = React.createClass((_React$createClass = {
@@ -58233,7 +58343,7 @@
 	            null,
 	            React.createElement(
 	                'ul',
-	                { className: 'nav nav-tabs' },
+	                { className: 'nav nav-tabs', style: { marginTop: '10%' } },
 	                React.createElement(
 	                    'li',
 	                    null,
@@ -58267,7 +58377,7 @@
 	                null,
 	                React.createElement(
 	                    'ul',
-	                    { className: 'nav nav-tabs' },
+	                    { className: 'nav nav-tabs', style: { marginTop: '10%' } },
 	                    React.createElement(
 	                        'li',
 	                        null,
@@ -58301,7 +58411,7 @@
 	            null,
 	            React.createElement(
 	                'ul',
-	                { className: 'nav nav-tabs' },
+	                { className: 'nav nav-tabs', style: { marginTop: '10%' } },
 	                React.createElement(
 	                    'li',
 	                    { className: 'active' },
@@ -58323,7 +58433,7 @@
 	        uri = this.state.uri;
 	        return React.createElement(
 	            'div',
-	            null,
+	            { style: { marginTop: '10%' } },
 	            React.createElement(
 	                'ul',
 	                { className: 'nav nav-tabs' },
@@ -58344,7 +58454,7 @@
 	}), _defineProperty(_React$createClass, 'render', function render() {
 	    return React.createElement(
 	        'div',
-	        { className: 'container' },
+	        { className: 'container', style: { paddingLeft: '0px', fontFamily: 'Open Sans' } },
 	        this.showUI()
 	    );
 	}), _React$createClass));
@@ -58363,7 +58473,7 @@
 	// module.exports = connect()(QuestionsArea);
 
 /***/ }),
-/* 634 */
+/* 636 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58383,7 +58493,7 @@
 	        var questionsArray = [];
 	        if (this.props.questions) {
 	            for (var i = 0; i < this.props.questions.length; i++) {
-	                questionsArray.push(React.createElement(BasicQuestion, { id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
+	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
 	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
 	            }
 	        }
@@ -58416,10 +58526,13 @@
 	        }
 	    },
 	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            { className: 'container', style: { backgroundColor: 'white', height: '100%' } },
-	            this.displayUi()
+	        return (
+	            //  style={{backgroundColor:'white',height:'100%'}}
+	            React.createElement(
+	                'div',
+	                { className: 'container', style: { paddingLeft: '0px' } },
+	                this.displayUi()
+	            )
 	        );
 	    }
 	});
@@ -58434,7 +58547,7 @@
 	// module.exports = connect()(SearchQuestions);
 
 /***/ }),
-/* 635 */
+/* 637 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58446,13 +58559,13 @@
 
 	var _redux = __webpack_require__(214);
 
-	var _reduxThunk = __webpack_require__(636);
+	var _reduxThunk = __webpack_require__(638);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var _require = __webpack_require__(637),
+	var _require = __webpack_require__(639),
 	    getSignUpStateReducers = _require.getSignUpStateReducers,
 	    getActiveUsersStateReducer = _require.getActiveUsersStateReducer,
 	    getEditAnswerStateReducer = _require.getEditAnswerStateReducer,
@@ -58481,7 +58594,7 @@
 	};
 
 /***/ }),
-/* 636 */
+/* 638 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -58509,7 +58622,7 @@
 	exports['default'] = thunk;
 
 /***/ }),
-/* 637 */
+/* 639 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -58886,56 +58999,6 @@
 	            };
 	    }
 	};
-
-/***/ }),
-/* 638 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var ReactDOM = __webpack_require__(37);
-	var BasicQuestion = __webpack_require__(624);
-
-	var _require = __webpack_require__(195),
-	    connect = _require.connect;
-
-	var ChatSend = React.createClass({
-	    displayName: 'ChatSend',
-	    getInitialState: function getInitialState() {
-	        return {
-	            value: ''
-	        };
-	    },
-	    handleClick: function handleClick(e) {
-	        e.preventDefault();
-	        var value = this.refs.message.value;
-	        this.setState({ value: '' });
-	        this.props.handleSendMessage(value);
-	    },
-	    handleChange: function handleChange(e) {
-	        e.preventDefault();
-	        this.setState({ value: this.refs.message.value });
-	    },
-	    render: function render() {
-	        return React.createElement(
-	            'div',
-	            null,
-	            React.createElement(
-	                'div',
-	                { className: 'form-group', style: { marginBottom: '2px' } },
-	                React.createElement('textarea', { value: this.state.value, style: { resize: 'None' }, ref: 'message', placeholder: 'Message', className: 'form-control', rows: '2', id: 'comment', onChange: this.handleChange })
-	            ),
-	            React.createElement(
-	                'button',
-	                { type: 'button', className: 'btn btn-info', onClick: this.handleClick },
-	                'Send'
-	            )
-	        );
-	    }
-	});
-
-	module.exports = ChatSend;
 
 /***/ })
 /******/ ]);

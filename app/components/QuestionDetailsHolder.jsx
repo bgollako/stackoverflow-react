@@ -15,7 +15,7 @@ let QuestionDetailsHolder = React.createClass({
     render(){
         this.props.dispatch(actions.getQuestionDetailsApi(this.props.params.id));
         return(
-            <div className='container'>
+            <div className='container' style={{marginTop:'10%',fontFamily:'Open Sans'}}>
                 <ul className="nav nav-tabs">
                     <li className="active"><a href={'#/questions/'+this.props.params.id}><Glyphicon glyph="question-sign"/> Question</a></li>
                     {/* <li><a href="#/home">Your Questions</a></li> */}

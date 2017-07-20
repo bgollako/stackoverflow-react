@@ -136,7 +136,7 @@ let Signup = React.createClass({
         setTimeout(()=>{this.context.router.push('/login')},1000)
       }
         return (
-          <div className style={{marginTop:'5%',marginLeft:'20%',marginRight:'30%'}}>
+          <div className style={{marginTop:'10%',marginLeft:'20%',marginRight:'30%',fontFamily:'Open Sans'}}>
             {this.displayMainErrorMessage()}
             <div className="panel panel-info">
               <div className="panel-heading">

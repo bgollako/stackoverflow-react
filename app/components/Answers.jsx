@@ -6,6 +6,12 @@ let api = require('api');
 let {Panel,Form,FormGroup,ControlLabel,FormControl,Button,InputGroup,Glyphicon} = require('react-bootstrap');
 
 let Answers = React.createClass({
+    getFormattedText(text){
+        let temp = text.replace(/\n/g,'<br/>');
+        let temp2 = temp.replace(' ','&nbsp');
+        return temp2;
+    },
+
      showAnswer(answers){
         let array =[];
         if(answers){
@@ -14,13 +20,13 @@ let Answers = React.createClass({
                     let answer = answers[i];
                     array.push(
                         <div key={answer._id}>
-                            <div className="media" style={{marginTop:'20px'}}>
+                            <div className="media" style={{marginLeft:'10%',marginTop:'10px',backgroundColor:'white',padding:'10px',borderStyle:'solid',borderWidth:'0.5px',borderColor:'#eee',borderRadius:'5px'}}>
                                 <div className="media-body">
-                                    <p>{answer.description}</p>
+                                    {/* <p>{answer.description}</p> */}
+                                    <p dangerouslySetInnerHTML={{__html:this.getFormattedText(answer.description)}}></p>
                                     <small><i>Posted by <a style={{cursor:'pointer'}}>{answer.user.name}</a>, {answer.answered}</i></small>
                                 </div>
                             </div>
-                            <hr/>
                         </div>
                     );
                 }
@@ -36,8 +42,9 @@ let Answers = React.createClass({
             );
         }else if(this.props.status == 'COMPLETE_POST_ANSWER'){
             return (
-                <div className="well" style={{marginLeft:'15%',backgroundColor:'#f2f5f9'}}><h4 className="media-heading">Answers</h4>
-                    <hr/>
+                // <div className="well" style={{marginLeft:'15%',backgroundColor:'#f2f5f9'}}><h4 className="media-heading">Answers</h4>
+                    // <hr/>
+                <div>
                     {this.showAnswer(this.props.question[0].answers)}
                 </div>
             );
@@ -45,8 +52,9 @@ let Answers = React.createClass({
 
         } else if(this.props.value && this.props.value.length >0){
             return(
-                <div className="well" style={{marginLeft:'15%',backgroundColor:'#f2f5f9'}}><h4 className="media-heading">Answers</h4>
-                    <hr/>
+                // <div className="well" style={{marginLeft:'15%',backgroundColor:'#f2f5f9'}}><h4 className="media-heading">Answers</h4>
+                    // <hr/>
+                <div>
                     {this.showAnswer(this.props.value)}
                 </div>
             );

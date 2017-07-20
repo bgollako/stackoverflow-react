@@ -12,8 +12,8 @@ let ChatRoom = React.createClass({
         return {
             currentUserId:'',
             curentUsername:'',
-            messages:[]
-
+            messages:[],
+            notifiedUserIds:[]
         };
     },
 
@@ -21,7 +21,8 @@ let ChatRoom = React.createClass({
         return {
             currentUserId:'',
             curentUsername:'',
-            messages:[]
+            messages:[],
+            notifiedUserIds:[]
         };
     },
 
@@ -46,6 +47,8 @@ let ChatRoom = React.createClass({
         state.currentUserId = userId;
         state.curentUsername = username;
         let newArray = this.state.messages.map(t=>t);
+        let newNotifications = this.state.notifiedUserIds.filter(id=>id != userId);
+        state.notifiedUserIds = newNotifications;
         state.messages = newArray;
         this.setState(state);
     },
@@ -70,23 +73,23 @@ let ChatRoom = React.createClass({
     },
 
     onMessageRecieved(e){
-        console.log(e.data);
         let userDetails = api.getUserFromLocalStorage();
         let userId = (userDetails && userDetails.user)?userDetails.user:'';
         if(e.data && e.data.length > 0){
             let message = JSON.parse(e.data);
             if(message){
+                let state = this.getDummyState();
                 let newArray = this.state.messages.map(t=>t);
                 if(message.sender_id == userId){
                     let toMessage = this.createToMessage(message.reciever_id,message.message);
-                    console.log("TO " + JSON.stringify(toMessage));
                     newArray.push(toMessage);
                 }else{
                     let fromMessage = this.createFromMessage(message.sender_id,message.message);
-                    console.log("FROM " + JSON.stringify(fromMessage));
+                    let newNotifications = this.state.notifiedUserIds.map(t=>t);
+                    newNotifications.push(message.sender_id);
+                    state.notifiedUserIds = newNotifications;
                     newArray.push(fromMessage);
                 }
-                let state = this.getDummyState();
                 state.currentUserId = this.state.currentUserId;
                 state.curentUsername = this.state.curentUsername;
                 state.messages = newArray;
@@ -100,10 +103,10 @@ let ChatRoom = React.createClass({
         let webSocket = this.props.getWebSocket();
         webSocket.onmessage = this.onMessageRecieved;
         return(
-            <div className='container'>
+            <div className='container' style={{marginTop:'10%',fontFamily:'Open Sans'}}>
                 <div className="row">
                     <div className="col-sm-3" style={{paddingRight:'2px'}}>
-                         <UsersList onUserSelect={this.handleUserSelect}/>
+                         <UsersList notifiedUserIds={this.state.notifiedUserIds} onUserSelect={this.handleUserSelect}/>
                     </div>
                     <div className="col-sm-9" style={{paddingLeft:'2px'}}>
                         <MessageAreas username={this.state.curentUsername} userId={this.state.currentUserId} messages={this.state.messages}/>

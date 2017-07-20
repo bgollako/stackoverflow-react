@@ -23,11 +23,18 @@ let MessageAreas = React.createClass({
         return messagesArray;
     },
 
+    getUsername(){
+        if(this.props.username && this.props.username!='')
+            return this.props.username;
+        else
+            return 'Chat Room';
+    },
+
     render(){
         return (
-            <div className="panel panel-primary" style={{marginBottom:'2px'}}>
-                <div className="panel-heading"><strong>{this.props.username}</strong></div>
-                <div className="panel-body" style={{height:'600px',overflow:'scroll'}}>
+            <div className="panel panel-success" style={{marginBottom:'2px'}}>
+                <div className="panel-heading"><strong>{this.getUsername()}</strong></div>
+                <div className="panel-body" style={{height:'500px',overflow:'scroll'}}>
                     {this.displayMessages()}
                 </div>
             </div>
