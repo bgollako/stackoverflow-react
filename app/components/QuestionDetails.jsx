@@ -227,7 +227,7 @@ let QuestionDetails = React.createClass({
             this.setState(state);
             return;
         }else{
-            state.showQuestionEditForm = true;
+            state.showQuestionEditForm = false;
             this.setState(state);
             if(this.props.status == '')
                 questionId = this.state.question[0]._id;

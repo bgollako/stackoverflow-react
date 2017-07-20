@@ -29,9 +29,17 @@ let QuestionsAreaHolder = React.createClass({
             if(this.props.location.query.query.trim().length > 0){
                 searchUri = '#/questions' + this.props.location.search;
                 this.props.dispatch(actions.searchQuestionDetailsApi(this.props.location.query.query.trim()));
+            }else if(this.props.location.pathname && this.props.location.pathname == '/questions/newest'){
+                this.props.dispatch(actions.getLatestQuestions());
+            }else if(this.props.location.pathname && this.props.location.pathname == '/questions/me'){
+                this.props.dispatch(actions.getUserQuestionsApi());
             }else{
                 this.props.dispatch(actions.getAllQuestions());
             }
+        }else if(this.props.location.pathname && this.props.location.pathname == '/questions/newest'){
+                this.props.dispatch(actions.getLatestQuestions());
+        }else if(this.props.location.pathname && this.props.location.pathname == '/questions/me'){
+                this.props.dispatch(actions.getUserQuestionsApi());
         }else{
             this.props.dispatch(actions.getAllQuestions());
         }

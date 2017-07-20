@@ -39,6 +39,15 @@ export let getAllQuestions = () =>{
     return axios.get(API_URL_V1 + 'questions/');
 }
 
+export let getLatestQuestions = () =>{
+    return axios.get(API_URL_V1 + '/questions/newest/');
+}
+
+export let getUserQuestions = (authValue) =>{
+    let header = { headers: { 'Authorization': authValue} };
+    return axios.get(API_URL_V1 + '/questions/me/',header);
+}
+
 export let getQuestionDetails = (id) =>{
     return axios.get(API_URL_V1 + 'questions/' +id);
 }

@@ -49,7 +49,7 @@
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(37);
 	var Root = __webpack_require__(193);
-	var store = __webpack_require__(637).configure();
+	var store = __webpack_require__(639).configure();
 
 	var _require = __webpack_require__(195),
 	    Provider = _require.Provider;
@@ -23178,6 +23178,8 @@
 	                    { path: '/', component: Main },
 	                    React.createElement(IndexRoute, { component: QuestionsAreaHolder }),
 	                    React.createElement(Route, { path: 'home', component: Home }),
+	                    React.createElement(Route, { path: 'questions/newest', component: QuestionsAreaHolder }),
+	                    React.createElement(Route, { path: 'questions/me', component: QuestionsAreaHolder }),
 	                    React.createElement(Route, { path: 'login', component: function component() {
 	                            return React.createElement(Login, { onLoginSubmit: _this.handleLoginSubmit });
 	                        } }),
@@ -23410,7 +23412,7 @@
 	                    React.createElement(
 	                        'div',
 	                        { className: 'form-group' },
-	                        React.createElement('input', { type: 'text', className: 'form-control', size: '60', ref: 'searchItem', placeholder: 'Search' })
+	                        React.createElement('input', { type: 'text', className: 'form-control', size: '40', ref: 'searchItem', placeholder: 'Search' })
 	                    ),
 	                    this.displaySearchButton()
 	                ),
@@ -48564,6 +48566,15 @@
 	    return axios.get(API_URL_V1 + 'questions/');
 	};
 
+	var getLatestQuestions = exports.getLatestQuestions = function getLatestQuestions() {
+	    return axios.get(API_URL_V1 + '/questions/newest/');
+	};
+
+	var getUserQuestions = exports.getUserQuestions = function getUserQuestions(authValue) {
+	    var header = { headers: { 'Authorization': authValue } };
+	    return axios.get(API_URL_V1 + '/questions/me/', header);
+	};
+
 	var getQuestionDetails = exports.getQuestionDetails = function getQuestionDetails(id) {
 	    return axios.get(API_URL_V1 + 'questions/' + id);
 	};
@@ -55819,6 +55830,8 @@
 	exports.getQuestionDetailsApi = getQuestionDetailsApi;
 	exports.signUpApi = signUpApi;
 	exports.userLogInApi = userLogInApi;
+	exports.getLatestQuestions = getLatestQuestions;
+	exports.getUserQuestionsApi = getUserQuestionsApi;
 	exports.getAllQuestions = getAllQuestions;
 	exports.increment = increment;
 	exports.incrementAsync = incrementAsync;
@@ -56175,6 +56188,84 @@
 	            } else {
 	                return dispatch(userLoggedOut('Internal Error'));
 	            }
+	        });
+	    };
+	};
+
+	var beginGetLatestQuestions = exports.beginGetLatestQuestions = function beginGetLatestQuestions() {
+	    return {
+	        type: 'BEGIN_GET_LATEST_QUESTIONS',
+	        message: '',
+	        questions: []
+	    };
+	};
+
+	var completeGetLatestQuestions = exports.completeGetLatestQuestions = function completeGetLatestQuestions(questions) {
+	    return {
+	        type: 'COMPLETE_GET_LATEST_QUESTIONS',
+	        message: '',
+	        questions: questions
+	    };
+	};
+
+	var errorOnGetLatestQuestions = exports.errorOnGetLatestQuestions = function errorOnGetLatestQuestions(message) {
+	    return {
+	        type: 'ERROR_ON_GET_LATEST_QUESTIONS',
+	        message: message,
+	        questions: []
+	    };
+	};
+
+	function getLatestQuestions() {
+	    return function (dispatch) {
+	        dispatch(beginGetLatestQuestions());
+	        api.getLatestQuestions().then(function (res) {
+	            if (res.status == 200) {
+	                return dispatch(completeGetLatestQuestions(res.data));
+	            }
+	        }).catch(function (err) {
+	            console.log(err);
+	            return dispatch(errorOnGetLatestQuestions());
+	        });
+	    };
+	};
+
+	var beginGetUserQuestions = exports.beginGetUserQuestions = function beginGetUserQuestions() {
+	    return {
+	        type: 'BEGIN_GET_USER_QUESTIONS',
+	        message: '',
+	        questions: []
+	    };
+	};
+
+	var completeGetUserQuestions = exports.completeGetUserQuestions = function completeGetUserQuestions(questions) {
+	    return {
+	        type: 'COMPLETE_GET_USER_QUESTIONS',
+	        message: '',
+	        questions: questions
+	    };
+	};
+
+	var errorOnGetUserQuestions = exports.errorOnGetUserQuestions = function errorOnGetUserQuestions(message) {
+	    return {
+	        type: 'ERROR_ON_GET_USER_QUESTIONS',
+	        message: message,
+	        questions: []
+	    };
+	};
+
+	function getUserQuestionsApi() {
+	    return function (dispatch) {
+	        dispatch(beginGetUserQuestions());
+	        var userDetails = api.getUserFromLocalStorage();
+	        var authValue = userDetails ? userDetails.authValue : '';
+	        api.getUserQuestions(authValue).then(function (res) {
+	            if (res.status == 200) {
+	                return dispatch(completeGetUserQuestions(res.data));
+	            }
+	        }).catch(function (err) {
+	            console.log(err);
+	            return dispatch(errorOnGetUserQuestions());
 	        });
 	    };
 	};
@@ -57201,7 +57292,7 @@
 	            this.setState(state);
 	            return;
 	        } else {
-	            state.showQuestionEditForm = true;
+	            state.showQuestionEditForm = false;
 	            this.setState(state);
 	            if (this.props.status == '') questionId = this.state.question[0]._id;else questionId = this.props.question[0]._id;
 	            this.props.dispatch(actions.editQuestionApi(questionId, editTitle, editDescription));
@@ -58177,9 +58268,17 @@
 	            if (this.props.location.query.query.trim().length > 0) {
 	                searchUri = '#/questions' + this.props.location.search;
 	                this.props.dispatch(actions.searchQuestionDetailsApi(this.props.location.query.query.trim()));
+	            } else if (this.props.location.pathname && this.props.location.pathname == '/questions/newest') {
+	                this.props.dispatch(actions.getLatestQuestions());
+	            } else if (this.props.location.pathname && this.props.location.pathname == '/questions/me') {
+	                this.props.dispatch(actions.getUserQuestionsApi());
 	            } else {
 	                this.props.dispatch(actions.getAllQuestions());
 	            }
+	        } else if (this.props.location.pathname && this.props.location.pathname == '/questions/newest') {
+	            this.props.dispatch(actions.getLatestQuestions());
+	        } else if (this.props.location.pathname && this.props.location.pathname == '/questions/me') {
+	            this.props.dispatch(actions.getUserQuestionsApi());
 	        } else {
 	            this.props.dispatch(actions.getAllQuestions());
 	        }
@@ -58287,6 +58386,8 @@
 	var BasicQuestion = __webpack_require__(624);
 	var RecentQuestions = __webpack_require__(634);
 	var SearchQuestions = __webpack_require__(636);
+	var NewestQuestions = __webpack_require__(637);
+	var YourQuestions = __webpack_require__(638);
 	var actions = __webpack_require__(615);
 
 	var QuestionsArea = React.createClass((_React$createClass = {
@@ -58312,7 +58413,7 @@
 	        // this.context.router.push(this.state.uri);
 	    },
 	    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
-	        if (this.props.refreshStatus != nextProps.refreshStatus || this.props.searchStatus != nextProps.searchStatus) {
+	        if (this.props.refreshStatus != nextProps.refreshStatus || this.props.searchStatus != nextProps.searchStatus || this.props.latestQuestionsStatus != nextProps.latestQuestionsStatus) {
 	            return true;
 	        } else {
 	            return false;
@@ -58331,9 +58432,12 @@
 	        );
 	    }
 	}), _defineProperty(_React$createClass, 'showUI', function showUI() {
+	    console.log(this.props);
+	    var userDetails = api.getUserFromLocalStorage();
 	    var prev = this.state.dispatch;
 	    var uri = this.props.searchUri ? this.props.searchUri : '';
 	    if (this.props.searchStatus == 'BEGIN_SEARCH_QUESTION') {
+	        console.log('1');
 	        var state = this.getDummyState();
 	        state.uri = uri;
 	        state.dispatch = this.props.searchStatus;
@@ -58350,9 +58454,19 @@
 	                    React.createElement(
 	                        'a',
 	                        { href: '#/', onClick: this.showRecentQuestions },
-	                        'Recent Questions'
+	                        'Questions'
 	                    )
 	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/questions/newest' },
+	                        'Latest Questions'
+	                    )
+	                ),
+	                this.displayUserQuestions(userDetails, false),
 	                React.createElement(
 	                    'li',
 	                    { className: 'active' },
@@ -58366,6 +58480,7 @@
 	            React.createElement(SearchQuestions, null)
 	        );
 	    } else if (this.props.searchStatus == 'COMPLETE_SEARCH_QUESTION' || this.props.searchStatus == 'ERROR_ON_SEARCH_QUESTION') {
+	        console.log('2');
 	        // this.setStatus('prev_dispatch',this.props.searchStatus);
 	        var _state = this.getDummyState();
 	        _state.dispatch = this.props.searchStatus;
@@ -58384,9 +58499,19 @@
 	                        React.createElement(
 	                            'a',
 	                            { href: '#/', onClick: this.showRecentQuestions },
-	                            'Recent Questions'
+	                            'Questions'
 	                        )
 	                    ),
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/questions/newest' },
+	                            'Latest Questions'
+	                        )
+	                    ),
+	                    this.displayUserQuestions(userDetails, false),
 	                    React.createElement(
 	                        'li',
 	                        { className: 'active' },
@@ -58401,6 +58526,7 @@
 	            );
 	        }
 	    } else if (this.props.refreshStatus == 'BEGIN_REFRESH') {
+	        console.log('3');
 	        var _state2 = this.getDummyState();
 	        _state2.dispatch = this.props.refreshStatus;
 	        _state2.uri = this.state.uri;
@@ -58418,38 +58544,235 @@
 	                    React.createElement(
 	                        'a',
 	                        { href: '#/', onClick: this.showRecentQuestions },
-	                        'Recent Questions'
+	                        'Questions'
 	                    )
 	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/questions/newest' },
+	                        'Latest Questions'
+	                    )
+	                ),
+	                this.displayUserQuestions(userDetails, false),
 	                this.showSearchResults()
 	            ),
 	            React.createElement(RecentQuestions, null)
 	        );
 	    } else if (this.props.refreshStatus == 'END_REFRESH' || this.props.refreshStatus == 'ERROR_REFRESH') {
+	        console.log('4');
 	        var _state3 = this.getDummyState();
 	        _state3.dispatch = this.props.refreshStatus;
 	        _state3.uri = this.state.uri;
 	        this.setState(_state3);
 	        uri = this.state.uri;
+	        if (prev == 'BEGIN_REFRESH') {
+	            return React.createElement(
+	                'div',
+	                { style: { marginTop: '10%' } },
+	                React.createElement(
+	                    'ul',
+	                    { className: 'nav nav-tabs' },
+	                    React.createElement(
+	                        'li',
+	                        { className: 'active' },
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/', onClick: this.showRecentQuestions },
+	                            'Questions'
+	                        )
+	                    ),
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/questions/newest' },
+	                            'Latest Questions'
+	                        )
+	                    ),
+	                    this.displayUserQuestions(userDetails, false),
+	                    this.showSearchResults()
+	                ),
+	                React.createElement(RecentQuestions, null)
+	            );
+	        }
+	    } else if (this.props.latestQuestionsStatus == 'BEGIN_GET_LATEST_QUESTIONS') {
+	        console.log('5');
+	        var _state4 = this.getDummyState();
+	        _state4.dispatch = this.props.latestQuestionsStatus;
+	        _state4.uri = this.state.uri;
+	        this.setState(_state4);
+	        uri = this.state.uri;
 	        return React.createElement(
 	            'div',
-	            { style: { marginTop: '10%' } },
+	            null,
 	            React.createElement(
 	                'ul',
-	                { className: 'nav nav-tabs' },
+	                { className: 'nav nav-tabs', style: { marginTop: '10%' } },
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/', onClick: this.showRecentQuestions },
+	                        'Questions'
+	                    )
+	                ),
 	                React.createElement(
 	                    'li',
 	                    { className: 'active' },
 	                    React.createElement(
 	                        'a',
-	                        { href: '#/', onClick: this.showRecentQuestions },
-	                        'Recent Questions'
+	                        { href: '#/questions/newest' },
+	                        'Latest Questions'
 	                    )
 	                ),
+	                this.displayUserQuestions(userDetails, false),
 	                this.showSearchResults()
 	            ),
-	            React.createElement(RecentQuestions, null)
+	            React.createElement(NewestQuestions, null)
 	        );
+	    } else if (this.props.latestQuestionsStatus == 'COMPLETE_GET_LATEST_QUESTIONS' || this.props.latestQuestionsStatus == 'ERROR_ON_GET_LATEST_QUESTIONS') {
+	        console.log('6');
+	        var _state5 = this.getDummyState();
+	        _state5.dispatch = this.props.latestQuestionsStatus;
+	        _state5.uri = this.state.uri;
+	        this.setState(_state5);
+	        uri = this.state.uri;
+	        if (prev == 'BEGIN_GET_LATEST_QUESTIONS') {
+	            return React.createElement(
+	                'div',
+	                { style: { marginTop: '10%' } },
+	                React.createElement(
+	                    'ul',
+	                    { className: 'nav nav-tabs' },
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/', onClick: this.showRecentQuestions },
+	                            'Questions'
+	                        )
+	                    ),
+	                    React.createElement(
+	                        'li',
+	                        { className: 'active' },
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/questions/newest' },
+	                            'Latest Questions'
+	                        )
+	                    ),
+	                    this.displayUserQuestions(userDetails, false),
+	                    this.showSearchResults()
+	                ),
+	                React.createElement(NewestQuestions, null)
+	            );
+	        }
+	    } else if (this.props.userQuestionsStatus == 'BEGIN_GET_USER_QUESTIONS') {
+	        console.log('7');
+	        var _state6 = this.getDummyState();
+	        _state6.dispatch = this.props.userQuestionsStatus;
+	        _state6.uri = this.state.uri;
+	        this.setState(_state6);
+	        uri = this.state.uri;
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'ul',
+	                { className: 'nav nav-tabs', style: { marginTop: '10%' } },
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/', onClick: this.showRecentQuestions },
+	                        'Questions'
+	                    )
+	                ),
+	                React.createElement(
+	                    'li',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/questions/newest' },
+	                        'Latest Questions'
+	                    )
+	                ),
+	                this.displayUserQuestions(userDetails, true),
+	                this.showSearchResults()
+	            ),
+	            React.createElement(YourQuestions, null)
+	        );
+	    } else if (this.props.userQuestionsStatus == 'COMPLETE_GET_USER_QUESTIONS' || this.props.userQuestionsStatus == 'ERROR_ON_GET_USER_QUESTIONS') {
+	        console.log('8');
+	        var _state7 = this.getDummyState();
+	        _state7.dispatch = this.props.userQuestionsStatus;
+	        _state7.uri = this.state.uri;
+	        this.setState(_state7);
+	        uri = this.state.uri;
+	        if (prev == 'BEGIN_GET_USER_QUESTIONS') {
+	            return React.createElement(
+	                'div',
+	                { style: { marginTop: '10%' } },
+	                React.createElement(
+	                    'ul',
+	                    { className: 'nav nav-tabs' },
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/', onClick: this.showRecentQuestions },
+	                            'Questions'
+	                        )
+	                    ),
+	                    React.createElement(
+	                        'li',
+	                        null,
+	                        React.createElement(
+	                            'a',
+	                            { href: '#/questions/newest' },
+	                            'Latest Questions'
+	                        )
+	                    ),
+	                    this.displayUserQuestions(userDetails, true),
+	                    this.showSearchResults()
+	                ),
+	                React.createElement(YourQuestions, null)
+	            );
+	        }
+	    }
+	}), _defineProperty(_React$createClass, 'displayUserQuestions', function displayUserQuestions(userDetails, isActive) {
+	    if (userDetails) {
+	        if (userDetails.user && userDetails.user.length > 0) {
+	            if (isActive) {
+	                return React.createElement(
+	                    'li',
+	                    { className: 'active' },
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/questions/me' },
+	                        'Your Questions'
+	                    )
+	                );
+	            } else {
+	                return React.createElement(
+	                    'li',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#/questions/me' },
+	                        'Your Questions'
+	                    )
+	                );
+	            }
+	        }
 	    }
 	}), _defineProperty(_React$createClass, 'render', function render() {
 	    return React.createElement(
@@ -58466,7 +58789,9 @@
 	module.exports = connect(function (state) {
 	    return {
 	        searchStatus: state.getSearchQuestionState.status,
-	        refreshStatus: state.questionsState.status
+	        refreshStatus: state.questionsState.status,
+	        latestQuestionsStatus: state.getLatestQuestionsState.status,
+	        userQuestionsStatus: state.getUserQuestionsState.status
 	    };
 	})(QuestionsArea);
 
@@ -58552,6 +58877,138 @@
 
 	'use strict';
 
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(37);
+	var BasicQuestion = __webpack_require__(624);
+
+	var _require = __webpack_require__(195),
+	    connect = _require.connect;
+	// let loadGif = require('loadGif');
+
+
+	var NewestQuestions = React.createClass({
+	    displayName: 'NewestQuestions',
+	    renderQuestions: function renderQuestions() {
+	        var questionsArray = [];
+	        if (this.props.questions) {
+	            for (var i = 0; i < this.props.questions.length; i++) {
+	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
+	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
+	            }
+	        }
+	        return questionsArray;
+	    },
+	    displayUi: function displayUi() {
+	        if (this.props.status) {
+	            if (this.props.status == 'BEGIN_GET_LATEST_QUESTIONS') {
+	                return React.createElement('img', { src: 'images/loading3.gif', style: { marginLeft: '37%', marginTop: '15%', marginBottom: '30%' } });
+	            } else if (this.props.status == 'COMPLETE_GET_LATEST_QUESTIONS') {
+	                return this.renderQuestions();
+	            } else if (this.props.status == 'ERROR_ON_GET_LATEST_QUESTIONS') {
+	                return React.createElement(
+	                    'div',
+	                    { className: 'alert alert-danger', style: { marginTop: '10px' } },
+	                    React.createElement(
+	                        'strong',
+	                        null,
+	                        'Error!'
+	                    ),
+	                    ' Please check console logs.'
+	                );
+	            }
+	        }
+	    },
+	    render: function render() {
+	        return (
+	            // style={{backgroundColor:'white',height:'100%'}}
+	            React.createElement(
+	                'div',
+	                { className: 'container', style: { paddingLeft: '0px' } },
+	                this.displayUi()
+	            )
+	        );
+	    }
+	});
+
+	module.exports = connect(function (state) {
+	    return {
+	        status: state.getLatestQuestionsState.status,
+	        questions: state.getLatestQuestionsState.questions
+	    };
+	})(NewestQuestions);
+
+/***/ }),
+/* 638 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(37);
+	var BasicQuestion = __webpack_require__(624);
+
+	var _require = __webpack_require__(195),
+	    connect = _require.connect;
+	// let loadGif = require('loadGif');
+
+
+	var YourQuestions = React.createClass({
+	    displayName: 'YourQuestions',
+	    renderQuestions: function renderQuestions() {
+	        var questionsArray = [];
+	        if (this.props.questions) {
+	            for (var i = 0; i < this.props.questions.length; i++) {
+	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
+	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
+	            }
+	        }
+	        return questionsArray;
+	    },
+	    displayUi: function displayUi() {
+	        if (this.props.status) {
+	            if (this.props.status == 'BEGIN_GET_USER_QUESTIONS') {
+	                return React.createElement('img', { src: 'images/loading3.gif', style: { marginLeft: '37%', marginTop: '15%', marginBottom: '30%' } });
+	            } else if (this.props.status == 'COMPLETE_GET_USER_QUESTIONS') {
+	                return this.renderQuestions();
+	            } else if (this.props.status == 'ERROR_ON_GET_USER_QUESTIONS') {
+	                return React.createElement(
+	                    'div',
+	                    { className: 'alert alert-danger', style: { marginTop: '10px' } },
+	                    React.createElement(
+	                        'strong',
+	                        null,
+	                        'Error!'
+	                    ),
+	                    ' Please check console logs.'
+	                );
+	            }
+	        }
+	    },
+	    render: function render() {
+	        return (
+	            // style={{backgroundColor:'white',height:'100%'}}
+	            React.createElement(
+	                'div',
+	                { className: 'container', style: { paddingLeft: '0px' } },
+	                this.displayUi()
+	            )
+	        );
+	    }
+	});
+
+	module.exports = connect(function (state) {
+	    return {
+	        status: state.getUserQuestionsState.status,
+	        questions: state.getUserQuestionsState.questions
+	    };
+	})(YourQuestions);
+
+/***/ }),
+/* 639 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
@@ -58559,13 +59016,15 @@
 
 	var _redux = __webpack_require__(214);
 
-	var _reduxThunk = __webpack_require__(638);
+	var _reduxThunk = __webpack_require__(640);
 
 	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var _require = __webpack_require__(639),
+	var _require = __webpack_require__(641),
+	    getUserQuestionsStateReducer = _require.getUserQuestionsStateReducer,
+	    getLatestQuestionsStateReducer = _require.getLatestQuestionsStateReducer,
 	    getSignUpStateReducers = _require.getSignUpStateReducers,
 	    getActiveUsersStateReducer = _require.getActiveUsersStateReducer,
 	    getEditAnswerStateReducer = _require.getEditAnswerStateReducer,
@@ -58586,7 +59045,9 @@
 	        getPostAnswerState: getPostAnswerStateReducer,
 	        getEditAnswerState: getEditAnswerStateReducer,
 	        getActiveUsersState: getActiveUsersStateReducer,
-	        getSignUpState: getSignUpStateReducers
+	        getSignUpState: getSignUpStateReducers,
+	        getLatestQuestionsState: getLatestQuestionsStateReducer,
+	        getUserQuestionsState: getUserQuestionsStateReducer
 	    });
 
 	    var store = (0, _redux.createStore)(reducer, {}, (0, _redux.compose)((0, _redux.applyMiddleware)(_reduxThunk2.default)));
@@ -58594,7 +59055,7 @@
 	};
 
 /***/ }),
-/* 638 */
+/* 640 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -58622,7 +59083,7 @@
 	exports['default'] = thunk;
 
 /***/ }),
-/* 639 */
+/* 641 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -58996,6 +59457,72 @@
 	            return {
 	                status: '',
 	                message: ''
+	            };
+	    }
+	};
+
+	var getUserQuestionsStateReducer = exports.getUserQuestionsStateReducer = function getUserQuestionsStateReducer() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { status: '', message: '', questions: [] };
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	        case 'BEGIN_GET_USER_QUESTIONS':
+	            return { status: 'BEGIN_GET_USER_QUESTIONS',
+	                message: '',
+	                questions: []
+	            };
+	        case 'COMPLETE_GET_USER_QUESTIONS':
+	            return {
+	                status: 'COMPLETE_GET_USER_QUESTIONS',
+	                message: '',
+	                questions: action.questions.map(function (t) {
+	                    return t;
+	                })
+	            };
+	        case 'ERROR_ON_GET_USER_QUESTIONS':
+	            return {
+	                status: 'ERROR_ON_GET_USER_QUESTIONS',
+	                message: action.message,
+	                questions: []
+	            };
+	        default:
+	            return {
+	                status: '',
+	                message: '',
+	                questions: []
+	            };
+	    }
+	};
+
+	var getLatestQuestionsStateReducer = exports.getLatestQuestionsStateReducer = function getLatestQuestionsStateReducer() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { status: '', message: '', questions: [] };
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	        case 'BEGIN_GET_LATEST_QUESTIONS':
+	            return { status: 'BEGIN_GET_LATEST_QUESTIONS',
+	                message: '',
+	                questions: []
+	            };
+	        case 'COMPLETE_GET_LATEST_QUESTIONS':
+	            return {
+	                status: 'COMPLETE_GET_LATEST_QUESTIONS',
+	                message: '',
+	                questions: action.questions.map(function (t) {
+	                    return t;
+	                })
+	            };
+	        case 'ERROR_ON_GET_LATEST_QUESTIONS':
+	            return {
+	                status: 'ERROR_ON_GET_LATEST_QUESTIONS',
+	                message: action.message,
+	                questions: []
+	            };
+	        default:
+	            return {
+	                status: '',
+	                message: '',
+	                questions: []
 	            };
 	    }
 	};

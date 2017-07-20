@@ -349,6 +349,84 @@ export  function userLogInApi(username, password){
     };
 };
 
+export let beginGetLatestQuestions = () =>{
+    return {
+        type: 'BEGIN_GET_LATEST_QUESTIONS',
+        message:'',
+        questions:[]
+    };
+};
+
+export let completeGetLatestQuestions =(questions) =>{
+    return {
+        type: 'COMPLETE_GET_LATEST_QUESTIONS',
+        message:'',
+        questions
+    };
+};
+
+export let errorOnGetLatestQuestions =(message) =>{
+    return {
+        type: 'ERROR_ON_GET_LATEST_QUESTIONS',
+        message,
+        questions:[]
+    };
+};
+
+export function getLatestQuestions(){
+    return dispatch=>{
+        dispatch(beginGetLatestQuestions());
+        api.getLatestQuestions().then(res=>{
+            if(res.status == 200){
+                return dispatch(completeGetLatestQuestions(res.data));
+            }            
+        }).catch(err=>{
+            console.log(err);
+            return dispatch(errorOnGetLatestQuestions());
+        });
+    };
+};
+
+export let beginGetUserQuestions = () =>{
+    return {
+        type: 'BEGIN_GET_USER_QUESTIONS',
+        message:'',
+        questions:[]
+    };
+};
+
+export let completeGetUserQuestions =(questions) =>{
+    return {
+        type: 'COMPLETE_GET_USER_QUESTIONS',
+        message:'',
+        questions
+    };
+};
+
+export let errorOnGetUserQuestions =(message) =>{
+    return {
+        type: 'ERROR_ON_GET_USER_QUESTIONS',
+        message,
+        questions:[]
+    };
+};
+
+export function getUserQuestionsApi(){
+    return dispatch=>{
+        dispatch(beginGetUserQuestions());
+        let userDetails = api.getUserFromLocalStorage();
+        let authValue = userDetails?userDetails.authValue:'';
+        api.getUserQuestions(authValue).then(res=>{
+            if(res.status == 200){
+                return dispatch(completeGetUserQuestions(res.data));
+            }            
+        }).catch(err=>{
+            console.log(err);
+            return dispatch(errorOnGetUserQuestions());
+        });
+    };
+};
+
 export function getAllQuestions(){
     return dispatch=>{
         dispatch(beginQuestionsRefresh());

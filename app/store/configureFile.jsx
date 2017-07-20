@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware,combineReducers,compose } from 'redux';
 import thunk from 'redux-thunk'
-let {getSignUpStateReducers,getActiveUsersStateReducer,getEditAnswerStateReducer,getPostAnswerStateReducer,getSearchQuestionStateReducer,getQuestionDetailsReducer,userStateReducer,questionsRefreshReducer,questionPostReducer} = require('reducers');
+let {getUserQuestionsStateReducer,getLatestQuestionsStateReducer,getSignUpStateReducers,getActiveUsersStateReducer,getEditAnswerStateReducer,getPostAnswerStateReducer,getSearchQuestionStateReducer,getQuestionDetailsReducer,userStateReducer,questionsRefreshReducer,questionPostReducer} = require('reducers');
     export let configure =() => {
         let reducer = combineReducers({
             userState: userStateReducer,
@@ -11,7 +11,9 @@ let {getSignUpStateReducers,getActiveUsersStateReducer,getEditAnswerStateReducer
             getPostAnswerState:getPostAnswerStateReducer,
             getEditAnswerState:getEditAnswerStateReducer,
             getActiveUsersState:getActiveUsersStateReducer,
-            getSignUpState:getSignUpStateReducers
+            getSignUpState:getSignUpStateReducers,
+            getLatestQuestionsState:getLatestQuestionsStateReducer,
+            getUserQuestionsState:getUserQuestionsStateReducer
         });
 
         let store = createStore(reducer,{},

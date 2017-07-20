@@ -312,3 +312,59 @@ export let getSignUpStateReducers = (state = {status:'',message:''},action)=>{
             };
     }
 };
+
+export let getUserQuestionsStateReducer = (state = {status:'',message:'',questions:[]},action)=>{
+    switch (action.type){
+        case 'BEGIN_GET_USER_QUESTIONS':
+            return { status:'BEGIN_GET_USER_QUESTIONS',
+                     message: '',
+                     questions:[]
+            };
+        case 'COMPLETE_GET_USER_QUESTIONS':
+            return {
+                status: 'COMPLETE_GET_USER_QUESTIONS',
+                message: '',
+                questions:action.questions.map(t=>t)
+            };
+        case 'ERROR_ON_GET_USER_QUESTIONS':
+            return {
+                status: 'ERROR_ON_GET_USER_QUESTIONS',
+                message:action.message,
+                questions:[]
+            };
+        default:
+            return{
+                status:'',
+                message:'',
+                questions:[]
+            };
+    }
+};
+
+export let  getLatestQuestionsStateReducer = (state = {status:'',message:'',questions:[]},action)=>{
+    switch (action.type){
+        case 'BEGIN_GET_LATEST_QUESTIONS':
+            return { status:'BEGIN_GET_LATEST_QUESTIONS',
+                     message: '',
+                     questions:[]
+            };
+        case 'COMPLETE_GET_LATEST_QUESTIONS':
+            return {
+                status: 'COMPLETE_GET_LATEST_QUESTIONS',
+                message: '',
+                questions:action.questions.map(t=>t)
+            };
+        case 'ERROR_ON_GET_LATEST_QUESTIONS':
+            return {
+                status: 'ERROR_ON_GET_LATEST_QUESTIONS',
+                message:action.message,
+                questions:[]
+            };
+        default:
+            return{
+                status:'',
+                message:'',
+                questions:[]
+            };
+    }
+};

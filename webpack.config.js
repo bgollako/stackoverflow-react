@@ -37,7 +37,8 @@ module.exports={
             ToMessage:'app/components/ToMessage.jsx',
             FromMessage:'app/components/FromMessage.jsx',
             ChatSend:'app/components/ChatSend.jsx',
-            Home:'app/components/Home.jsx'
+            Home:'app/components/Home.jsx',
+            NewestQuestions:'app/components/NewestQuestions.jsx'
             // loadGif: 'web/images/loading.gif'
         },
         extensions: ['','.js','.jsx']

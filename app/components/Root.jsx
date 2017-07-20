@@ -29,6 +29,8 @@ let Root = React.createClass({
                     <Route path='/' component={Main}>
                         <IndexRoute component={QuestionsAreaHolder} /> 
                         <Route path='home' component={Home} />
+                        <Route path='questions/newest' component={QuestionsAreaHolder} />
+                        <Route path='questions/me' component={QuestionsAreaHolder} />
                         <Route path='login' component={()=><Login onLoginSubmit={this.handleLoginSubmit}/>} />
                         <Route path='signup' component={()=><Signup/>} />
                         <Route path='postquestion' component={()=><PostQuestion/>} />

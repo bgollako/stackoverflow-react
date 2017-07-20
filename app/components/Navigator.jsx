@@ -113,7 +113,7 @@ let Navigator = React.createClass({
                         {this.showPostQuestion()}
                         <form className="navbar-form navbar-left" onSubmit={this.onSearchQuestion}>
                             <div className="form-group">
-                                <input type="text" className="form-control" size="60" ref='searchItem' placeholder="Search"/>
+                                <input type="text" className="form-control" size="40" ref='searchItem' placeholder="Search"/>
                             </div>
                             {this.displaySearchButton()}
                         </form>
