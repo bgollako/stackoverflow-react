@@ -106,8 +106,19 @@ let Login = React.createClass({
         }
     },
 
+    displayMainErrorMessage(){
+      if(window.localStorage && window.localStorage.getItem('just_signed_up')
+        && window.localStorage.getItem('just_signed_up') == 'true'){
+          window.localStorage.removeItem('just_signed_up');
+        return (
+           <div className="alert alert-success" style={{marginTop:'20px'}}>
+              <strong>Congratulations, you have successfully signed up</strong>, Please sign in to continue.
+            </div>
+        );
+      }
+    },
+
     render: function(){
-      console.log(this);
       let userDetails = this.getUserDetailsFromLocalStorage();
       if(userDetails && userDetails.user){
         setTimeout(()=>{this.context.router.push('#/')},1000)
@@ -120,6 +131,7 @@ let Login = React.createClass({
       }
         return (
           <div style={{marginTop:'5%',marginLeft:'20%',marginRight:'30%'}}>
+            {this.displayMainErrorMessage()}
             <div className="panel panel-info">
               <div className="panel-heading">
                 <span className="panel-title" style={{fontSize:'24px',fontStyle:'bold'}}>Login</span>

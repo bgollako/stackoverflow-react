@@ -4,6 +4,7 @@ let {connect} = require('react-redux');
 let UsersList = require('UsersList');
 let MessageAreas = require('MessageAreas');
 let api = require('api');
+let ChatSend = require('ChatSend');
 
 let ChatRoom = React.createClass({
     
@@ -49,13 +50,11 @@ let ChatRoom = React.createClass({
         this.setState(state);
     },
 
-    handleSendMessage(e){
-        e.preventDefault();
+    handleSendMessage(value){
         if(this.state.currentUserId == '' || this.state.curentUsername == '')
             return;
         let userDetails = api.getUserFromLocalStorage();
         let userId = (userDetails && userDetails.user)?userDetails.user:'';
-        let value = this.refs.message.value.trim();
         if(value == '')
             return;
         
@@ -108,10 +107,7 @@ let ChatRoom = React.createClass({
                     </div>
                     <div className="col-sm-9" style={{paddingLeft:'2px'}}>
                         <MessageAreas username={this.state.curentUsername} userId={this.state.currentUserId} messages={this.state.messages}/>
-                        <div className="form-group" style={{marginBottom:'2px'}}>
-                            <textarea style={{resize:'None'}} ref='message' placeholder='Message' className="form-control" rows="2" id="comment"></textarea>
-                        </div>
-                        <button type="button" className="btn btn-info" onClick={this.handleSendMessage}>Send</button>
+                        <ChatSend handleSendMessage={this.handleSendMessage}/>
                     </div>
                 </div>
             </div>

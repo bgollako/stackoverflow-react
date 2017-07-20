@@ -25,7 +25,7 @@ let MessageAreas = React.createClass({
 
     render(){
         return (
-            <div className="panel panel-default" style={{marginBottom:'2px'}}>
+            <div className="panel panel-primary" style={{marginBottom:'2px'}}>
                 <div className="panel-heading"><strong>{this.props.username}</strong></div>
                 <div className="panel-body" style={{height:'600px',overflow:'scroll'}}>
                     {this.displayMessages()}

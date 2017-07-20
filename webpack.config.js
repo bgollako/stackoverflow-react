@@ -35,7 +35,8 @@ module.exports={
             UsersListItem: 'app/components/UsersListItem.jsx',
             MessageAreas: 'app/components/MessageAreas.jsx',
             ToMessage:'app/components/ToMessage.jsx',
-            FromMessage:'app/components/FromMessage.jsx'
+            FromMessage:'app/components/FromMessage.jsx',
+            ChatSend:'app/components/ChatSend.jsx'
             // loadGif: 'web/images/loading.gif'
         },
         extensions: ['','.js','.jsx']

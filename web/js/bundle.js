@@ -56369,10 +56369,26 @@
 	    }
 	  },
 
+	  displayMainErrorMessage: function displayMainErrorMessage() {
+	    if (window.localStorage && window.localStorage.getItem('just_signed_up') && window.localStorage.getItem('just_signed_up') == 'true') {
+	      window.localStorage.removeItem('just_signed_up');
+	      return React.createElement(
+	        'div',
+	        { className: 'alert alert-success', style: { marginTop: '20px' } },
+	        React.createElement(
+	          'strong',
+	          null,
+	          'Congratulations, you have successfully signed up'
+	        ),
+	        ', Please sign in to continue.'
+	      );
+	    }
+	  },
+
+
 	  render: function render() {
 	    var _this = this;
 
-	    console.log(this);
 	    var userDetails = this.getUserDetailsFromLocalStorage();
 	    if (userDetails && userDetails.user) {
 	      setTimeout(function () {
@@ -56390,6 +56406,7 @@
 	    return React.createElement(
 	      'div',
 	      { style: { marginTop: '5%', marginLeft: '20%', marginRight: '30%' } },
+	      this.displayMainErrorMessage(),
 	      React.createElement(
 	        'div',
 	        { className: 'panel panel-info' },
@@ -56606,6 +56623,7 @@
 	    var _this = this;
 
 	    if (this.props.status == 'COMPLETE_SIGN_UP') {
+	      if (window.localStorage) window.localStorage.setItem('just_signed_up', 'true');
 	      setTimeout(function () {
 	        _this.context.router.push('/login');
 	      }, 1000);
@@ -57598,6 +57616,7 @@
 	var UsersList = __webpack_require__(626);
 	var MessageAreas = __webpack_require__(628);
 	var api = __webpack_require__(524);
+	var ChatSend = __webpack_require__(638);
 
 	var ChatRoom = React.createClass({
 	    displayName: 'ChatRoom',
@@ -57640,12 +57659,10 @@
 	        state.messages = newArray;
 	        this.setState(state);
 	    },
-	    handleSendMessage: function handleSendMessage(e) {
-	        e.preventDefault();
+	    handleSendMessage: function handleSendMessage(value) {
 	        if (this.state.currentUserId == '' || this.state.curentUsername == '') return;
 	        var userDetails = api.getUserFromLocalStorage();
 	        var userId = userDetails && userDetails.user ? userDetails.user : '';
-	        var value = this.refs.message.value.trim();
 	        if (value == '') return;
 
 	        var webSocket = this.props.getWebSocket();
@@ -57703,16 +57720,7 @@
 	                    'div',
 	                    { className: 'col-sm-9', style: { paddingLeft: '2px' } },
 	                    React.createElement(MessageAreas, { username: this.state.curentUsername, userId: this.state.currentUserId, messages: this.state.messages }),
-	                    React.createElement(
-	                        'div',
-	                        { className: 'form-group', style: { marginBottom: '2px' } },
-	                        React.createElement('textarea', { style: { resize: 'None' }, ref: 'message', placeholder: 'Message', className: 'form-control', rows: '2', id: 'comment' })
-	                    ),
-	                    React.createElement(
-	                        'button',
-	                        { type: 'button', className: 'btn btn-info', onClick: this.handleSendMessage },
-	                        'Send'
-	                    )
+	                    React.createElement(ChatSend, { handleSendMessage: this.handleSendMessage })
 	                )
 	            )
 	        );
@@ -57742,6 +57750,7 @@
 	    connect = _require.connect;
 
 	var api = __webpack_require__(524);
+	var actions = __webpack_require__(615);
 
 	var UsersList = React.createClass({
 	    displayName: 'UsersList',
@@ -57773,7 +57782,7 @@
 	        if (this.state.currentSelection == user_id) return 'list-group-item active';else return 'list-group-item';
 	    },
 	    renderUser: function renderUser(user) {
-	        return React.createElement(UsersListItem, { class_name: this.getClassForItem(user._id), key: user._id, user_id: user._id, user: user.name, onItemClick: this.handleUserItemClick });
+	        return React.createElement(UsersListItem, { status: user.status, class_name: this.getClassForItem(user._id), key: user._id, user_id: user._id, user: user.name, onItemClick: this.handleUserItemClick });
 	    },
 	    renderUsers: function renderUsers() {
 	        if (this.props.status == 'BEGIN_GET_ACTIVE_USERS') {
@@ -57818,10 +57827,13 @@
 	            );
 	        }
 	    },
+	    handleReload: function handleReload() {
+	        this.props.dispatch(actions.getAllActiveUserApi());
+	    },
 	    render: function render() {
 	        return React.createElement(
 	            'div',
-	            { className: 'panel panel-default', style: { marginBottom: '2px' } },
+	            { className: 'panel panel-primary', style: { marginBottom: '2px' } },
 	            React.createElement(
 	                'div',
 	                { className: 'panel-heading' },
@@ -57829,7 +57841,9 @@
 	                    'strong',
 	                    null,
 	                    'Users'
-	                )
+	                ),
+	                React.createElement('span', { style: { float: 'right', cursor: 'pointer' }, className: 'glyphicon glyphicon-refresh',
+	                    onClick: this.handleReload })
 	            ),
 	            React.createElement(
 	                'div',
@@ -57869,11 +57883,19 @@
 	        e.preventDefault();
 	        this.props.onItemClick(this.props.user_id, this.props.user);
 	    },
+	    getIcon: function getIcon() {
+	        if (this.props.status) {
+	            if (this.props.status == 'online') return 'images/green.png';else return 'images/yellow.png';
+	        } else {
+	            return 'images/yellow.png';
+	        }
+	    },
 	    render: function render() {
 	        return React.createElement(
 	            'a',
 	            { id: this.props.user_id, href: '#', className: this.props.class_name, onClick: this.handleClick },
-	            this.props.user
+	            this.props.user,
+	            React.createElement('img', { style: { float: 'right' }, src: this.getIcon() })
 	        );
 	    }
 	});
@@ -57912,7 +57934,7 @@
 	    render: function render() {
 	        return React.createElement(
 	            'div',
-	            { className: 'panel panel-default', style: { marginBottom: '2px' } },
+	            { className: 'panel panel-primary', style: { marginBottom: '2px' } },
 	            React.createElement(
 	                'div',
 	                { className: 'panel-heading' },
@@ -58864,6 +58886,56 @@
 	            };
 	    }
 	};
+
+/***/ }),
+/* 638 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(37);
+	var BasicQuestion = __webpack_require__(624);
+
+	var _require = __webpack_require__(195),
+	    connect = _require.connect;
+
+	var ChatSend = React.createClass({
+	    displayName: 'ChatSend',
+	    getInitialState: function getInitialState() {
+	        return {
+	            value: ''
+	        };
+	    },
+	    handleClick: function handleClick(e) {
+	        e.preventDefault();
+	        var value = this.refs.message.value;
+	        this.setState({ value: '' });
+	        this.props.handleSendMessage(value);
+	    },
+	    handleChange: function handleChange(e) {
+	        e.preventDefault();
+	        this.setState({ value: this.refs.message.value });
+	    },
+	    render: function render() {
+	        return React.createElement(
+	            'div',
+	            null,
+	            React.createElement(
+	                'div',
+	                { className: 'form-group', style: { marginBottom: '2px' } },
+	                React.createElement('textarea', { value: this.state.value, style: { resize: 'None' }, ref: 'message', placeholder: 'Message', className: 'form-control', rows: '2', id: 'comment', onChange: this.handleChange })
+	            ),
+	            React.createElement(
+	                'button',
+	                { type: 'button', className: 'btn btn-info', onClick: this.handleClick },
+	                'Send'
+	            )
+	        );
+	    }
+	});
+
+	module.exports = ChatSend;
 
 /***/ })
 /******/ ]);

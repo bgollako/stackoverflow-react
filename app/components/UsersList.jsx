@@ -3,6 +3,7 @@ let ReactDOM = require('react-dom');
 let UsersListItem = require('UsersListItem');
 let {connect} = require('react-redux');
 let api = require('api');
+let actions = require('actions');
 
 let UsersList = React.createClass({
 
@@ -41,7 +42,7 @@ let UsersList = React.createClass({
 
     renderUser(user){
         return(
-            <UsersListItem class_name={this.getClassForItem(user._id)} key={user._id} user_id={user._id} user={user.name} onItemClick={this.handleUserItemClick}/>
+            <UsersListItem status={user.status} class_name={this.getClassForItem(user._id)} key={user._id} user_id={user._id} user={user.name} onItemClick={this.handleUserItemClick}/>
         );
     },
 
@@ -93,10 +94,17 @@ let UsersList = React.createClass({
         }
     },
 
+    handleReload(){
+        this.props.dispatch(actions.getAllActiveUserApi());
+    },
+
     render(){
         return (
-            <div className="panel panel-default" style={{marginBottom:'2px'}}>
-                <div className="panel-heading"><strong>Users</strong></div>
+            <div className="panel panel-primary" style={{marginBottom:'2px'}}>
+                <div className="panel-heading"><strong>Users</strong>
+                    <span style={{float:'right',cursor:'pointer'}} className="glyphicon glyphicon-refresh" 
+                    onClick={this.handleReload}></span>
+                </div>
                 <div className="panel-body" style={{padding:'0px',height:'500px',overflow:'scroll'}}>
                     {this.renderUsers()}
                 </div>

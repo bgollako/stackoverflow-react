@@ -131,6 +131,8 @@ let Signup = React.createClass({
 
     render(){
       if(this.props.status == 'COMPLETE_SIGN_UP'){
+        if(window.localStorage)
+          window.localStorage.setItem('just_signed_up','true');
         setTimeout(()=>{this.context.router.push('/login')},1000)
       }
         return (
