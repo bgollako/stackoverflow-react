@@ -23283,13 +23283,6 @@
 	                        ), id: 'basic-nav-dropdown' },
 	                    React.createElement(
 	                        MenuItem,
-	                        { eventKey: 4.1 },
-	                        React.createElement(Glyphicon, { glyph: 'pencil' }),
-	                        ' My Profile'
-	                    ),
-	                    React.createElement(MenuItem, { divider: true }),
-	                    React.createElement(
-	                        MenuItem,
 	                        { eventKey: 4.2, onClick: this.handleLogoutSubmit },
 	                        React.createElement(Glyphicon, { glyph: 'off' }),
 	                        ' Logout'
@@ -48566,6 +48559,12 @@
 	    return axios.get(API_URL_V1 + 'questions/');
 	};
 
+	var voteUpQuestion = exports.voteUpQuestion = function voteUpQuestion(id, authValue) {
+	    var header = { headers: { 'Authorization': authValue } };
+	    console.log(authValue);
+	    return axios.put(API_URL_V1 + 'questions/' + id + '/vote/', {}, header);
+	};
+
 	var getLatestQuestions = exports.getLatestQuestions = function getLatestQuestions() {
 	    return axios.get(API_URL_V1 + '/questions/newest/');
 	};
@@ -55833,6 +55832,7 @@
 	exports.getLatestQuestions = getLatestQuestions;
 	exports.getUserQuestionsApi = getUserQuestionsApi;
 	exports.getAllQuestions = getAllQuestions;
+	exports.voteQuestionApi = voteQuestionApi;
 	exports.increment = increment;
 	exports.incrementAsync = incrementAsync;
 	var api = __webpack_require__(524);
@@ -56280,6 +56280,41 @@
 	        }).catch(function (err) {
 	            console.log(err);
 	            return dispatch(errorQuestionsRefresh());
+	        });
+	    };
+	};
+
+	var beginVoteUp = exports.beginVoteUp = function beginVoteUp() {
+	    return {
+	        type: 'BEGIN_VOTE_UP',
+	        message: ''
+	    };
+	};
+
+	var completeVoteUp = exports.completeVoteUp = function completeVoteUp() {
+	    return {
+	        type: 'COMPLETE_VOTE_UP',
+	        message: ''
+	    };
+	};
+
+	var errorOnVoteUp = exports.errorOnVoteUp = function errorOnVoteUp(message) {
+	    return {
+	        type: 'ERROR_ON_VOTE_UP',
+	        message: message
+	    };
+	};
+
+	function voteQuestionApi(id) {
+	    return function (dispatch) {
+	        var userDetails = api.getUserFromLocalStorage();
+	        var authValue = userDetails ? userDetails.authValue : '';
+	        dispatch(beginVoteUp());
+	        api.voteUpQuestion(id, authValue).then(function (res) {
+	            return dispatch(completeVoteUp());
+	        }).catch(function (err) {
+	            console.log(err);
+	            return dispatch(errorOnVoteUp());
 	        });
 	    };
 	};
@@ -57083,6 +57118,8 @@
 	            hasEditQuestionDescriptionError: false,
 	            showAnswerBox: false,
 	            hasPostError: false,
+	            voteCount: 0,
+	            isLiked: false,
 	            question: []
 	        };
 	    },
@@ -57093,6 +57130,8 @@
 	            hasEditQuestionDescriptionError: false,
 	            showAnswerBox: false,
 	            hasPostError: false,
+	            voteCount: 0,
+	            isLiked: false,
 	            question: []
 	        };
 	    },
@@ -57104,11 +57143,18 @@
 	            state.showQuestionEditForm = false;
 	            state.hasEditQuestionTitleError = false;
 	            state.hasEditQuestionDescriptionError = false;
-	            if (this.props.status == '') state.question = this.state.question.map(function (t) {
-	                return t;
-	            });else state.question = this.props.question.map(function (t) {
-	                return t;
-	            });
+	            state.isLiked = this.state.isLiked;
+	            if (this.props.status == '') {
+	                state.question = this.state.question.map(function (t) {
+	                    return t;
+	                });
+	            } else {
+	                state.question = this.props.question.map(function (t) {
+	                    return t;
+	                });
+	                state.voteCount = this.props.question[0].vote ? this.props.question[0].vote.length : 0;
+	            }
+
 	            this.setState(state);
 	        }
 	    },
@@ -57123,11 +57169,18 @@
 	    onCancel: function onCancel(e) {
 	        e.preventDefault();
 	        var state = this.getDummyState();
-	        if (this.props.status == '') state.question = this.state.question.map(function (t) {
-	            return t;
-	        });else state.question = this.props.question.map(function (t) {
-	            return t;
-	        });
+	        if (this.props.status == '') {
+	            state.question = this.state.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = this.state.question[0].vote ? this.state.question[0].vote.length : 0;
+	        } else {
+	            state.question = this.props.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = this.props.question[0].vote ? this.props.question[0].vote.length : 0;
+	        }
+	        state.isLiked = this.state.isLiked;
 	        state.showAnswerBox = false;
 	        state.hasPostError = false;
 	        state.hasEditQuestionTitleError = false;
@@ -57153,6 +57206,67 @@
 	            );
 	        }
 	    },
+	    canUserLikeQuestion: function canUserLikeQuestion(userId) {
+	        console.log(userId);
+	        if (this.state.isLiked) {
+	            return 'btn btn-default active';
+	        }
+	        if (this.props.status == '') {
+	            if (this.state.question[0].vote) {
+	                if (this.state.question[0].vote.some(function (user) {
+	                    return user.username == userId;
+	                })) {
+	                    return 'btn btn-default active';
+	                } else {
+	                    return 'btn btn-default';
+	                }
+	            } else {
+	                return 'btn btn-default';
+	            }
+	        } else {
+	            if (this.props.question[0].vote) {
+	                if (this.props.question[0].vote.some(function (user) {
+	                    return user.username == userId;
+	                })) {
+	                    return 'btn btn-default active';
+	                } else {
+	                    return 'btn btn-default';
+	                }
+	            } else {
+	                return 'btn btn-default';
+	            }
+	        }
+	    },
+	    likeQuestion: function likeQuestion(e) {
+	        e.preventDefault();
+	        var userDetails = api.getUserFromLocalStorage();
+	        if (userDetails && userDetails.user && userDetails.user.length > 0) {
+	            if (this.canUserLikeQuestion(userDetails.user) == 'btn btn-default active') return;
+	        }
+	        var questionId = '';
+	        var state = this.getDummyState();
+	        if (this.props.status == '') {
+	            state.question = this.state.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = (this.state.question[0].vote ? this.state.question[0].vote.length : 0) + 1;
+	        } else {
+	            state.question = this.props.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = (this.props.question[0].vote ? this.props.question[0].vote.length : 0) + 1;
+	        }
+	        state.isLiked = true;
+	        state.showAnswerBox = false;
+	        state.hasPostError = false;
+	        state.hasEditQuestionTitleError = false;
+	        state.hasEditQuestionDescriptionError = false;
+	        this.setState(state);
+	        // this.props.onPostAnswer(answer);
+	        if (this.props.status == '') questionId = this.state.question[0]._id;else questionId = this.props.question[0]._id;
+	        console.log(questionId);
+	        this.props.dispatch(actions.voteQuestionApi(questionId));
+	    },
 	    displayAnswerButton: function displayAnswerButton() {
 	        var userDetails = api.getUserFromLocalStorage();
 	        if (userDetails && userDetails.user && userDetails.user.length > 0) {
@@ -57160,6 +57274,11 @@
 	                'span',
 	                { style: { float: 'right' }, className: 'btn-group btn-group-sm' },
 	                this.displayEditQuestionButton(),
+	                React.createElement(
+	                    'button',
+	                    { onClick: this.likeQuestion, 'data-toggle': 'button', type: 'button', className: this.canUserLikeQuestion(userDetails.user) },
+	                    React.createElement('span', { className: 'glyphicon glyphicon-thumbs-up' })
+	                ),
 	                React.createElement(
 	                    'button',
 	                    { type: 'button', onClick: this.toggleAnswerBox, className: 'btn btn-default' },
@@ -57191,11 +57310,18 @@
 	            state.showQuestionEditForm = true;
 	            state.hasEditQuestionTitleError = false;
 	            state.hasEditQuestionDescriptionError = false;
-	            if (this.props.status == '') state.question = this.state.question.map(function (t) {
-	                return t;
-	            });else state.question = this.props.question.map(function (t) {
-	                return t;
-	            });
+	            state.isLiked = this.state.isLiked;
+	            if (this.props.status == '') {
+	                state.question = this.state.question.map(function (t) {
+	                    return t;
+	                });
+	                state.voteCount = this.state.question[0].vote ? this.state.question[0].vote.length : 0;
+	            } else {
+	                state.question = this.props.question.map(function (t) {
+	                    return t;
+	                });
+	                state.voteCount = this.props.question[0].vote ? this.props.question[0].vote.length : 0;
+	            }
 	            this.setState(state);
 	        }
 	    },
@@ -57222,18 +57348,27 @@
 	        var state = this.getDummyState();
 	        if (this.props.status == '') state.question = this.state.question.map(function (t) {
 	            return t;
-	        });else state.question = this.props.question.map(function (t) {
-	            return t;
-	        });
+	        });else {
+	            state.question = this.props.question.map(function (t) {
+	                return t;
+	            });
+	        }
 	        state.showAnswerBox = false;
 	        state.hasPostError = false;
 	        state.hasEditQuestionTitleError = false;
 	        state.hasEditQuestionDescriptionError = false;
-	        if (this.props.status == '') state.question = this.state.question.map(function (t) {
-	            return t;
-	        });else state.question = this.props.question.map(function (t) {
-	            return t;
-	        });
+	        state.isLiked = this.state.isLiked;
+	        if (this.props.status == '') {
+	            state.question = this.state.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = this.state.question[0].vote ? this.state.question[0].vote.length : 0;
+	        } else {
+	            state.question = this.props.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = this.props.question[0].vote ? this.props.question[0].vote.length : 0;
+	        }
 	        this.setState(state);
 	    },
 	    onPost: function onPost(e) {
@@ -57249,16 +57384,23 @@
 	            state.hasPostError = true;
 	            state.hasEditQuestionTitleError = false;
 	            state.hasEditQuestionDescriptionError = false;
+	            state.isLiked = this.state.isLiked;
 	            this.setState(state);
 	            return;
 	        } else {
 	            var questionId = '';
 	            var _state = this.getDummyState();
-	            if (this.props.status == '') _state.question = this.state.question.map(function (t) {
-	                return t;
-	            });else _state.question = this.props.question.map(function (t) {
-	                return t;
-	            });
+	            if (this.props.status == '') {
+	                _state.question = this.state.question.map(function (t) {
+	                    return t;
+	                });
+	                _state.voteCount = this.state.question[0].vote ? this.state.question[0].vote.length : 0;
+	            } else {
+	                _state.question = this.props.question.map(function (t) {
+	                    return t;
+	                });
+	                _state.voteCount = this.props.question[0].vote ? this.props.question[0].vote.length : 0;
+	            }
 	            _state.showAnswerBox = false;
 	            _state.hasPostError = false;
 	            _state.hasEditQuestionTitleError = false;
@@ -57275,11 +57417,18 @@
 	        var state = this.getDummyState();
 	        var editTitle = this.refs.editTitle.value.trim();
 	        var editDescription = this.refs.editQuestion.value.trim();
-	        if (this.props.status == '') state.question = this.state.question.map(function (t) {
-	            return t;
-	        });else state.question = this.props.question.map(function (t) {
-	            return t;
-	        });
+	        state.isLiked = this.state.isLiked;
+	        if (this.props.status == '') {
+	            state.question = this.state.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = this.state.question[0].vote ? this.state.question[0].vote.length : 0;
+	        } else {
+	            state.question = this.props.question.map(function (t) {
+	                return t;
+	            });
+	            state.voteCount = this.props.question[0].vote ? this.props.question[0].vote.length : 0;
+	        }
 	        if (editTitle.length == 0) {
 	            state.hasEditQuestionTitleError = true;
 	            state.showQuestionEditForm = true;
@@ -57315,9 +57464,12 @@
 	        }
 	    },
 	    getFormattedText: function getFormattedText(text) {
-	        var temp = text.replace(/\n/g, '<br/>');
-	        var temp2 = temp.replace(' ', '&nbsp');
-	        return temp2;
+	        if (text) {
+	            var temp = text.replace(/\n/g, '<br/>');
+	            var temp2 = temp.replace(' ', '&nbsp');
+	            return temp2;
+	        }
+	        return '';
 	    },
 	    showQuestion: function showQuestion(question) {
 	        if (this.state.showQuestionEditForm) {
@@ -57373,7 +57525,6 @@
 	                            React.createElement(
 	                                'i',
 	                                null,
-	                                'Posted by ',
 	                                React.createElement(
 	                                    'a',
 	                                    { style: { cursor: 'pointer' } },
@@ -57382,12 +57533,23 @@
 	                                ', ',
 	                                question.asked
 	                            )
-	                        )
+	                        ),
+	                        React.createElement('br', null),
+	                        this.showVoteCount(),
+	                        ' ',
+	                        React.createElement(Glyphicon, { glyph: 'thumbs-up' })
 	                    )
 	                ),
 	                this.showAnsweringBox(),
 	                React.createElement('hr', null)
 	            );
+	        }
+	    },
+	    showVoteCount: function showVoteCount() {
+	        if (this.props.status == '') {
+	            return this.state.voteCount;
+	        } else {
+	            return this.props.question[0].vote ? this.props.question[0].vote.length : 0;
 	        }
 	    },
 	    render: function render() {
@@ -57684,9 +57846,9 @@
 	                React.createElement(
 	                    'div',
 	                    { className: 'btn-group btn-group-xs', role: 'group', style: { marginTop: '5px' } },
-	                    this.props.commentCount,
+	                    this.props.voteCount,
 	                    ' ',
-	                    React.createElement(Glyphicon, { glyph: 'comment' })
+	                    React.createElement(Glyphicon, { glyph: 'thumbs-up' })
 	                )
 	            )
 	        );
@@ -58314,7 +58476,7 @@
 	        if (this.props.questions) {
 	            for (var i = 0; i < this.props.questions.length; i++) {
 	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
-	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
+	                    user: this.props.questions[i].user.name, answerCount: 4, voteCount: this.props.questions[i].vote ? this.props.questions[i].vote.length : 0 }));
 	            }
 	        }
 	        return questionsArray;
@@ -58819,7 +58981,7 @@
 	        if (this.props.questions) {
 	            for (var i = 0; i < this.props.questions.length; i++) {
 	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
-	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
+	                    user: this.props.questions[i].user.name, answerCount: 4, voteCount: this.props.questions[i].vote ? this.props.questions[i].vote.length : 0 }));
 	            }
 	        }
 	        if (questionsArray.length != 0) return questionsArray;else {
@@ -58893,7 +59055,7 @@
 	        if (this.props.questions) {
 	            for (var i = 0; i < this.props.questions.length; i++) {
 	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
-	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
+	                    user: this.props.questions[i].user.name, answerCount: 4, voteCount: this.props.questions[i].vote ? this.props.questions[i].vote.length : 0 }));
 	            }
 	        }
 	        return questionsArray;
@@ -58959,7 +59121,7 @@
 	        if (this.props.questions) {
 	            for (var i = 0; i < this.props.questions.length; i++) {
 	                questionsArray.push(React.createElement(BasicQuestion, { asked: this.props.questions[i].asked, id: this.props.questions[i]._id, key: this.props.questions[i]._id, title: this.props.questions[i].title, description: this.props.questions[i].description,
-	                    user: this.props.questions[i].user.name, answerCount: 4, commentCount: this.props.questions[i].comments ? this.props.questions[i].comments.length : 0 }));
+	                    user: this.props.questions[i].user.name, answerCount: 4, voteCount: this.props.questions[i].vote ? this.props.questions[i].vote.length : 0 }));
 	            }
 	        }
 	        return questionsArray;
@@ -59023,6 +59185,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var _require = __webpack_require__(641),
+	    getVoteUpStateReducer = _require.getVoteUpStateReducer,
 	    getUserQuestionsStateReducer = _require.getUserQuestionsStateReducer,
 	    getLatestQuestionsStateReducer = _require.getLatestQuestionsStateReducer,
 	    getSignUpStateReducers = _require.getSignUpStateReducers,
@@ -59047,7 +59210,8 @@
 	        getActiveUsersState: getActiveUsersStateReducer,
 	        getSignUpState: getSignUpStateReducers,
 	        getLatestQuestionsState: getLatestQuestionsStateReducer,
-	        getUserQuestionsState: getUserQuestionsStateReducer
+	        getUserQuestionsState: getUserQuestionsStateReducer,
+	        getVoteUpState: getVoteUpStateReducer
 	    });
 
 	    var store = (0, _redux.createStore)(reducer, {}, (0, _redux.compose)((0, _redux.applyMiddleware)(_reduxThunk2.default)));
@@ -59523,6 +59687,33 @@
 	                status: '',
 	                message: '',
 	                questions: []
+	            };
+	    }
+	};
+
+	var getVoteUpStateReducer = exports.getVoteUpStateReducer = function getVoteUpStateReducer() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { status: '', message: '' };
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	        case 'BEGIN_VOTE_UP':
+	            return { status: 'BEGIN_VOTE_UP',
+	                message: ''
+	            };
+	        case 'COMPLETE_VOTE_UP':
+	            return {
+	                status: 'COMPLETE_VOTE_UP',
+	                message: ''
+	            };
+	        case 'ERROR_ON_VOTE_UP':
+	            return {
+	                status: 'ERROR_ON_VOTE_UP',
+	                message: action.message
+	            };
+	        default:
+	            return {
+	                status: '',
+	                message: ''
 	            };
 	    }
 	};

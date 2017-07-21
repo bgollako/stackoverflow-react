@@ -36,8 +36,8 @@ let Navigator = React.createClass({
                      <NavDropdown eventKey={4} title={
                          <span><Glyphicon glyph="user"/>Hi, {user}</span>
                      } id="basic-nav-dropdown">
-                        <MenuItem eventKey={4.1}><Glyphicon glyph="pencil"/> My Profile</MenuItem>
-                        <MenuItem divider />
+                        {/* <MenuItem eventKey={4.1}><Glyphicon glyph="pencil"/> My Profile</MenuItem>
+                        <MenuItem divider /> */}
                         <MenuItem eventKey={4.2} onClick={this.handleLogoutSubmit}><Glyphicon glyph="off"/> Logout</MenuItem>
                     </NavDropdown>
                 </Nav>

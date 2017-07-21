@@ -441,6 +441,41 @@ export function getAllQuestions(){
     };
 };
 
+export let beginVoteUp = () =>{
+    return {
+        type: 'BEGIN_VOTE_UP',
+        message:'',
+    };
+};
+
+export let completeVoteUp =() =>{
+    return {
+        type: 'COMPLETE_VOTE_UP',
+        message:'',
+    };
+};
+
+export let errorOnVoteUp =(message) =>{
+    return {
+        type: 'ERROR_ON_VOTE_UP',
+        message,
+    };
+};
+
+export function voteQuestionApi(id){
+    return dispatch=>{
+        let userDetails = api.getUserFromLocalStorage();
+        let authValue = userDetails?userDetails.authValue:'';
+        dispatch(beginVoteUp());
+        api.voteUpQuestion(id,authValue).then(res=>{
+            return dispatch(completeVoteUp());
+        }).catch(err=>{
+            console.log(err);
+            return dispatch(errorOnVoteUp());
+        });
+    };
+};
+
 export function increment() {
   return {
     type: 'INCREMENT_COUNTER'

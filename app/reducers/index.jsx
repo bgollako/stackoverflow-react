@@ -368,3 +368,27 @@ export let  getLatestQuestionsStateReducer = (state = {status:'',message:'',ques
             };
     }
 };
+
+export let  getVoteUpStateReducer = (state = {status:'',message:''},action)=>{
+    switch (action.type){
+        case 'BEGIN_VOTE_UP':
+            return { status:'BEGIN_VOTE_UP',
+                     message: '',
+            };
+        case 'COMPLETE_VOTE_UP':
+            return {
+                status: 'COMPLETE_VOTE_UP',
+                message: '',
+            };
+        case 'ERROR_ON_VOTE_UP':
+            return {
+                status: 'ERROR_ON_VOTE_UP',
+                message:action.message,
+            };
+        default:
+            return{
+                status:'',
+                message:'',
+            };
+    }
+};

@@ -14,7 +14,7 @@ let BasicQuestion = React.createClass({
                     <div className="btn-group btn-group-xs" role="group" style={{marginTop:'5px'}}>
                         {/* <button type="button" className="btn btn-info">Answers <span className="badge">{this.props.answerCount}</span></button> */}
                         {/* <button type="button" className="btn btn-info">Comments <span className="badge">{this.props.commentCount}</span></button> */}
-                        {this.props.commentCount} <Glyphicon glyph="comment"/> 
+                        {this.props.voteCount} <Glyphicon glyph="thumbs-up"/> 
                         {/* <button type="button" className="btn btn-info">Comments <span className="badge">2</span></button> */}
                     </div>
                 </div>

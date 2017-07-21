@@ -15,6 +15,8 @@ let QuestionDetails = React.createClass({
             hasEditQuestionDescriptionError:false,
             showAnswerBox:false,
             hasPostError:false,
+            voteCount:0,
+            isLiked:false,
             question:[]
         };
     },
@@ -26,6 +28,8 @@ let QuestionDetails = React.createClass({
             hasEditQuestionDescriptionError:false,
             showAnswerBox:false,
             hasPostError:false,
+            voteCount:0,
+            isLiked:false,
             question:[]
         };
     },
@@ -38,10 +42,15 @@ let QuestionDetails = React.createClass({
             state.showQuestionEditForm = false;
             state.hasEditQuestionTitleError=false;
             state.hasEditQuestionDescriptionError=false;
-            if(this.props.status == '')
-                state.question = this.state.question.map(t=>t); 
-            else
+            state.isLiked = this.state.isLiked;
+            if(this.props.status == ''){
+                state.question = this.state.question.map(t=>t);
+            }
+            else{
                 state.question = this.props.question.map(t=>t);
+                state.voteCount = (this.props.question[0].vote)?this.props.question[0].vote.length:0;
+            }
+            
             this.setState(state);
         }
     },
@@ -64,10 +73,14 @@ let QuestionDetails = React.createClass({
     onCancel(e){
         e.preventDefault();
         let state = this.getDummyState();
-        if(this.props.status == '')
-            state.question = this.state.question.map(t=>t); 
-        else
+        if(this.props.status == ''){
+            state.question = this.state.question.map(t=>t);
+            state.voteCount = (this.state.question[0].vote)?this.state.question[0].vote.length:0;
+        }else{
             state.question = this.props.question.map(t=>t);
+            state.voteCount = (this.props.question[0].vote)?this.props.question[0].vote.length:0;
+        }
+        state.isLiked = this.state.isLiked;
         state.showAnswerBox = false;
         state.hasPostError = false;
         state.hasEditQuestionTitleError=false;
@@ -87,6 +100,65 @@ let QuestionDetails = React.createClass({
         }
     },
 
+    canUserLikeQuestion(userId){
+        console.log(userId);
+        if(this.state.isLiked){
+            return 'btn btn-default active'
+        }
+        if(this.props.status == ''){
+            if(this.state.question[0].vote){
+                if(this.state.question[0].vote.some(user=>user.username == userId)){
+                    return 'btn btn-default active'
+                }else{
+                    return 'btn btn-default'
+                }
+            }else{
+                return 'btn btn-default';
+            }
+        }else{
+            if(this.props.question[0].vote){
+                if(this.props.question[0].vote.some(user=>user.username == userId)){
+                    return 'btn btn-default active'
+                }else{
+                    return 'btn btn-default'
+                }
+            }else{
+                return 'btn btn-default';
+            }
+        }
+    },
+
+    likeQuestion(e){
+        e.preventDefault();
+        let userDetails = api.getUserFromLocalStorage();
+        if(userDetails && userDetails.user && userDetails.user.length >0){
+            if(this.canUserLikeQuestion(userDetails.user) == 'btn btn-default active')
+                return;
+        }
+        let questionId = '';
+        let state = this.getDummyState();
+        if(this.props.status == ''){
+            state.question = this.state.question.map(t=>t); 
+            state.voteCount = ((this.state.question[0].vote)?this.state.question[0].vote.length:0)+1;
+        }else{
+            state.question = this.props.question.map(t=>t);
+            state.voteCount = ((this.props.question[0].vote)?this.props.question[0].vote.length:0)+1;
+        }
+        state.isLiked = true;
+        state.showAnswerBox = false;
+        state.hasPostError = false;
+        state.hasEditQuestionTitleError=false;
+        state.hasEditQuestionDescriptionError=false;
+        this.setState(state);
+        // this.props.onPostAnswer(answer);
+        if(this.props.status == '')
+            questionId = this.state.question[0]._id;
+        else
+            questionId = this.props.question[0]._id;
+        console.log(questionId);
+        this.props.dispatch(actions.voteQuestionApi(questionId));
+    },
+
     displayAnswerButton(){
         let userDetails = api.getUserFromLocalStorage();
         if(userDetails && userDetails.user && userDetails.user.length >0){
@@ -94,6 +166,7 @@ let QuestionDetails = React.createClass({
                 <span style={{float:'right'}} className="btn-group btn-group-sm">
                     {/* <button type="button" className="btn btn-default"><span className="glyphicon glyphicon-thumbs-up"></span></button> */}
                     {this.displayEditQuestionButton()}
+                    <button onClick={this.likeQuestion} data-toggle="button" type="button" className={this.canUserLikeQuestion(userDetails.user)}><span className="glyphicon glyphicon-thumbs-up"></span></button>
                     <button type="button" onClick={this.toggleAnswerBox} className="btn btn-default"><span className="glyphicon glyphicon-comment"></span></button>
                 </span>
                     // <button onClick={this.toggleAnswerBox} style={{float:'right'}} type="button" className="btn btn-link btn-md"><Glyphicon glyph="comment"/></button>
@@ -124,10 +197,15 @@ let QuestionDetails = React.createClass({
             state.showQuestionEditForm = true;
             state.hasEditQuestionTitleError=false;
             state.hasEditQuestionDescriptionError=false;
-            if(this.props.status == '')
+            state.isLiked = this.state.isLiked;
+            if(this.props.status == ''){
                 state.question = this.state.question.map(t=>t); 
-            else
+                state.voteCount = (this.state.question[0].vote)?this.state.question[0].vote.length:0;
+            }
+            else{
                 state.question = this.props.question.map(t=>t);
+                state.voteCount = (this.props.question[0].vote)?this.props.question[0].vote.length:0;
+            }
             this.setState(state);
         }
     },
@@ -158,16 +236,21 @@ let QuestionDetails = React.createClass({
         let state = this.getDummyState();
         if(this.props.status == '')
             state.question = this.state.question.map(t=>t); 
-        else
+        else{
             state.question = this.props.question.map(t=>t);
+        }
         state.showAnswerBox = false;
         state.hasPostError = false;
         state.hasEditQuestionTitleError=false;
         state.hasEditQuestionDescriptionError=false;
-        if(this.props.status == '')
+        state.isLiked = this.state.isLiked;
+        if(this.props.status == ''){
             state.question = this.state.question.map(t=>t); 
-        else
+            state.voteCount = (this.state.question[0].vote)?this.state.question[0].vote.length:0;
+        }else{
             state.question = this.props.question.map(t=>t);
+            state.voteCount = (this.props.question[0].vote)?this.props.question[0].vote.length:0;
+        }
         this.setState(state);
     },
 
@@ -182,15 +265,19 @@ let QuestionDetails = React.createClass({
             state.hasPostError = true;
             state.hasEditQuestionTitleError=false;
             state.hasEditQuestionDescriptionError=false;
+            state.isLiked = this.state.isLiked;
             this.setState(state);
             return;
         }else{
             let questionId = '';
             let state = this.getDummyState();
-            if(this.props.status == '')
+            if(this.props.status == ''){
                 state.question = this.state.question.map(t=>t); 
-            else
+                state.voteCount = (this.state.question[0].vote)?this.state.question[0].vote.length:0;
+            }else{
                 state.question = this.props.question.map(t=>t);
+                state.voteCount = (this.props.question[0].vote)?this.props.question[0].vote.length:0;
+            }
             state.showAnswerBox = false;
             state.hasPostError = false;
             state.hasEditQuestionTitleError=false;
@@ -211,10 +298,14 @@ let QuestionDetails = React.createClass({
         let state = this.getDummyState();
         let editTitle = this.refs.editTitle.value.trim();
         let editDescription = this.refs.editQuestion.value.trim();
-        if(this.props.status == '')
+        state.isLiked = this.state.isLiked;
+        if(this.props.status == ''){
             state.question = this.state.question.map(t=>t); 
-        else
+            state.voteCount = (this.state.question[0].vote)?this.state.question[0].vote.length:0;
+        }else{
             state.question = this.props.question.map(t=>t);
+            state.voteCount = (this.props.question[0].vote)?this.props.question[0].vote.length:0;
+        }
         if(editTitle.length == 0){
             state.hasEditQuestionTitleError = true;
             state.showQuestionEditForm = true;
@@ -255,9 +346,12 @@ let QuestionDetails = React.createClass({
     },
 
     getFormattedText(text){
-        let temp = text.replace(/\n/g,'<br/>');
-        let temp2 = temp.replace(' ','&nbsp');
-        return temp2;
+        if(text){
+            let temp = text.replace(/\n/g,'<br/>');
+            let temp2 = temp.replace(' ','&nbsp');
+            return temp2;
+        }
+        return '';
     },
 
     showQuestion(question){
@@ -285,7 +379,8 @@ let QuestionDetails = React.createClass({
                             </div><br/>
                             {/* <p>{this.getFormattedText(question.description)}</p> */}
                             <p dangerouslySetInnerHTML={{__html:this.getFormattedText(question.description)}}></p>
-                            <small><i>Posted by <a style={{cursor:'pointer'}}>{question.user.name}</a>, {question.asked}</i></small>
+                            <small><i><a style={{cursor:'pointer'}}>{question.user.name}</a>, {question.asked}</i></small><br/>
+                            {this.showVoteCount()} <Glyphicon glyph="thumbs-up"/> 
                         </div>
                     </div>
                     {this.showAnsweringBox()}
@@ -296,6 +391,14 @@ let QuestionDetails = React.createClass({
                     <hr/>
                 </div>
             );
+        }
+    },
+
+    showVoteCount(){
+        if(this.props.status == ''){
+            return this.state.voteCount;
+        }else{
+            return (this.props.question[0].vote?this.props.question[0].vote.length:0);
         }
     },
 

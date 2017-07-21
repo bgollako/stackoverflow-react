@@ -11,7 +11,7 @@ let SearchQuestions = React.createClass({
             for(let i=0;i<this.props.questions.length;i++){
                 questionsArray.push(
                     <BasicQuestion asked={this.props.questions[i].asked} id={this.props.questions[i]._id} key={this.props.questions[i]._id} title={this.props.questions[i].title} description={this.props.questions[i].description}
-                    user={this.props.questions[i].user.name} answerCount={4} commentCount={this.props.questions[i].comments?this.props.questions[i].comments.length:0}/>
+                    user={this.props.questions[i].user.name} answerCount={4} voteCount={this.props.questions[i].vote?this.props.questions[i].vote.length:0}/>
                 );
             }
         }

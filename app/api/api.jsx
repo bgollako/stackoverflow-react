@@ -39,6 +39,12 @@ export let getAllQuestions = () =>{
     return axios.get(API_URL_V1 + 'questions/');
 }
 
+export let voteUpQuestion = (id,authValue) =>{
+    let header = { headers: { 'Authorization': authValue} };
+    console.log(authValue);
+    return axios.put(API_URL_V1 + 'questions/' + id + '/vote/',{},header);
+}
+
 export let getLatestQuestions = () =>{
     return axios.get(API_URL_V1 + '/questions/newest/');
 }
